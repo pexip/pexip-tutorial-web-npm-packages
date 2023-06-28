@@ -1,0 +1,9 @@
+.error {
+  width: 320px;
+}
+
+@media screen and (max-width: 400px)  {
+  .error {
+      width: 90%;
+  }
+}

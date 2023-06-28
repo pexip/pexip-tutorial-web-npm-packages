@@ -1,0 +1,9 @@
+.pin {
+  width: 320px;
+}
+
+@media screen and (max-width: 400px)  {
+  .pin {
+      width: 90%;
+  }
+}

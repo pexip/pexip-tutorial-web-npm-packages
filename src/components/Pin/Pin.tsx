@@ -1,0 +1,35 @@
+import React, { useState } from 'react';
+
+import Panel from '../utils/Panel/Panel';
+
+interface PinProps {
+  onSubmit: Function;
+  required: boolean;
+}
+
+
+function Pin(props: PinProps) {
+
+  const [pin, setPin] = useState('');
+
+  return (
+    <div className='Pin'>
+      <Panel>
+        <h2>Introduce PIN</h2>
+        <form onSubmit={(event) => {
+          event.preventDefault();
+          props.onSubmit(pin);
+        }}>
+          <div className='input-container'>
+            <input type='password' required={props.required}
+              placeholder='Insert the PIN'
+              value={pin} onChange={(event) => setPin(event.target.value)}/>
+          </div>
+          <input type='submit' value='Join'/>
+        </form>
+      </Panel>
+    </div>
+  );
+}
+
+export default Pin;

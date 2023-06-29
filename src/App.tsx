@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import Preflight from './components/Preflight/Preflight';
 import {
+  ClientCallType,
   InfinityClient,
   createCallSignals,
   createInfinityClient,
@@ -51,6 +52,7 @@ function App() {
     });
     setLocalStream(localStream);
     const response = await infinityClient.call({
+      callType: ClientCallType.AudioVideo,
       node: nodeDomain,
       conferenceAlias,
       displayName,

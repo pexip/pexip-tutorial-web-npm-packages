@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import Panel from '../utils/Panel/Panel'
+import {Button, Box, TextHeading, Input} from '@pexip/components';
+import './Preflight.css';
 
 const nodeDomainKey = 'pexip-node-domain';
 const vmrKey = 'pexip-vmr';
@@ -9,7 +10,7 @@ interface PreflightProps {
   onSubmit: (nodeDomain: string, vmr: string, displayName: string) => void;
 }
 
-function Preflight(props: PreflightProps) {
+function Preflight({onSubmit}: PreflightProps) {
 
   const [nodeDomain, setNodeDomain] = useState('');
   const [vmr, setVmr] = useState('');
@@ -25,31 +26,45 @@ function Preflight(props: PreflightProps) {
   }, []);
 
   return (
-    <div className='Preflight'>
-      <Panel>
-        <h2>Join a conference</h2>
+    <div className='preflight'>
+      <Box padding='small'>
+        <TextHeading htmlTag='h3' className="mb-4 text-center">Join a conference</TextHeading>
         <form onSubmit={(event) => {
           event.preventDefault();
           localStorage.setItem(nodeDomainKey, nodeDomain);
           localStorage.setItem(vmrKey, vmr);
           localStorage.setItem(displayNameKey, displayName);
-          props.onSubmit(nodeDomain, vmr, displayName);
+          onSubmit(nodeDomain, vmr, displayName);
         }}>
-          <div className='input-container'>
-            <label>Conference Node Domain</label>
-            <input type='text' required value={nodeDomain} placeholder='192.168.1.100 or pexipdemo.com' onChange={(event) => setNodeDomain(event.target.value)}/>
-          </div>
-          <div className='input-container'>
-            <label>Conference (VMR)</label>
-            <input type='text' required value={vmr} placeholder='conference' onChange={(event) => setVmr(event.target.value)}/>
-          </div>
-          <div className='input-container'>
-            <label>Display Name</label>
-            <input type='text' required value={displayName} placeholder='John Smith' onChange={(event) => setDisplayName(event.target.value)}/>
-          </div>
-          <input type='submit' value='Join'/>
+          <Input
+            name='nodeDomain'
+            value={nodeDomain}
+            onValueChange={setNodeDomain}
+            required
+            label='Conference Node Domain'
+            placeholder='192.168.1.100 or pexipdemo.com'
+          />
+          <Input
+            className='mt-4'
+            name='vmr'
+            value={vmr}
+            onValueChange={setVmr}
+            required
+            label='Conference (VMR)'
+            placeholder='conference'
+          />
+          <Input
+            className='mt-4'
+            name='displayName'
+            value={displayName}
+            onValueChange={setDisplayName}
+            required
+            label='Display Name'
+            placeholder='John Smith'
+          />
+          <Button className='mt-5' modifier='fullWidth' type='submit'>Join</Button>
         </form>
-      </Panel>
+      </Box>
     </div>
   );
 }

@@ -1,15 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import '@pexip/components/src/fonts.css';
+import '@pexip/components/dist/style.css';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { ThemeProvider } from '@pexip/components';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
+  <ThemeProvider colorScheme='light'>
     <App />
+  </ThemeProvider>
   </React.StrictMode>
 );
 

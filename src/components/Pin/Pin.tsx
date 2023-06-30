@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-
-import Panel from '../utils/Panel/Panel';
+import { Box, Button, Input, TextHeading } from '@pexip/components';
+import './Pin.css';
 
 interface PinProps {
   onSubmit: Function;
@@ -8,26 +8,31 @@ interface PinProps {
 }
 
 
-function Pin(props: PinProps) {
+function Pin({onSubmit, required}: PinProps) {
 
   const [pin, setPin] = useState('');
 
   return (
-    <div className='Pin'>
-      <Panel>
-        <h2>Introduce PIN</h2>
+    <div className='pin'>
+      <Box padding='small'>
+        <TextHeading className='mb-4 text-center' htmlTag='h2'>Introduce PIN</TextHeading>
         <form onSubmit={(event) => {
           event.preventDefault();
-          props.onSubmit(pin);
+          onSubmit(pin);
         }}>
-          <div className='input-container'>
-            <input type='password' required={props.required}
-              placeholder='Insert the PIN'
-              value={pin} onChange={(event) => setPin(event.target.value)}/>
-          </div>
-          <input type='submit' value='Join'/>
+          <Input
+            className='mt-4'
+            type='password'
+            name='password'
+            value={pin}
+            onValueChange={setPin}
+            required={required}
+            label=''
+            placeholder='Insert the PIN'
+          />
+          <Button className='mt-5' modifier='fullWidth' type='submit'>Join</Button>
         </form>
-      </Panel>
+      </Box>
     </div>
   );
 }

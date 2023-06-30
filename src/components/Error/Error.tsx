@@ -1,20 +1,20 @@
 import React from 'react';
-
-import Panel from '../utils/Panel/Panel';
+import { Box, Button, TextHeading, Text } from '@pexip/components';
+import './Error.css';
 
 interface ErrorProps {
   message: string;
   onClose: () => void;
 }
 
-function Error (props: ErrorProps) {
+function Error ({onClose, message}: ErrorProps) {
   return (
-    <div className='Error'>
-      <Panel>
-        <h2>Error</h2>
-        <p>{props.message}</p>
-        <button onClick={props.onClose}>Close</button>
-      </Panel>
+    <div className='error'>
+      <Box padding='small'>
+        <TextHeading className='mb-4 text-center' htmlTag='h2'>Error</TextHeading>
+        <Text htmlTag='p' className='text-center'>{message}</Text>
+        <Button className='mt-2' modifier='fullWidth' onClick={onClose}>Close</Button>
+      </Box>
     </div>
   );
 }

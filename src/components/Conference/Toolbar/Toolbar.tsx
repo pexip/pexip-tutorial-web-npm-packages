@@ -12,8 +12,8 @@ import "./Toolbar.css";
 
 interface ToolbarProps {
   className: string;
-  // TODO (10) Add property onAudioMute
-  // TODO (11) Add property onVideoMute
+  onAudioMute: (mute: boolean) => void;
+  onVideoMute: (mute: boolean) => void;
   onDisconnect: () => void;
 }
 
@@ -21,12 +21,18 @@ function Toolbar(props: ToolbarProps) {
 
   const className = [props.className, "Toolbar"].join(" ");
 
-  // TODO (12) Add state for audioMuted
-  // TODO (13) Add state for videoMuted
+  const [audioMuted, setAudioMuted] = useState(false);
+  const [videoMuted, setVideoMuted] = useState(false);
 
-  // TODO (14) Define function handleAudioMute
+  const handleAudioMute = () => {
+    props.onAudioMute(!audioMuted);
+    setAudioMuted(!audioMuted);
+  };
 
-  // TODO (15) Define function handleVideoMute
+  const handleVideoMute = async () => {
+    props.onVideoMute(!videoMuted);
+    setVideoMuted(!videoMuted);
+  };
 
   const handleHangUp = () => {
     props.onDisconnect();
@@ -34,8 +40,16 @@ function Toolbar(props: ToolbarProps) {
 
   return (
     <div className={className}>
-      {/* TODO (16) Add button to mute the audio */}
-      {/* TODO (17) Add button to mute the video */}
+      <Button
+        onClick={handleAudioMute}
+        selected={audioMuted}
+        icon={audioMuted ? <MicOffIcon /> : <MicIcon />}
+      />
+      <Button
+        onClick={handleVideoMute}
+        selected={videoMuted}
+        icon={videoMuted ? <VideocamOffIcon /> : <VideocamIcon />}
+      />
       <Button onClick={handleHangUp} icon={<CallEndIcon />} />
     </div>
   );

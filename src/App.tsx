@@ -101,9 +101,20 @@ function App() {
     setConnectionState(ConnectionState.Connecting);
   };
 
-  // TODO (01) Define handleAudioMute
+  const handleAudioMute = (mute: boolean) => {
+    infinityClient.mute({mute});
+  };
 
-  // TODO (02) Define handleVideoMute
+  const handleVideoMute = async (mute: boolean) => {
+    infinityClient.muteVideo({muteVideo: mute});
+    if (mute) {
+      localStream?.getTracks().forEach((track) => track.stop());
+      setLocalStream(null);
+    } else {
+      const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
+      setLocalStream(stream);
+    }
+  };
 
   useEffect(() => {
     infinityClient = createInfinityClient(
@@ -148,8 +159,8 @@ function App() {
         <Conference
           localStream={localStream}
           remoteStream={remoteStream}
-          // TODO (03) Add property onAudioMute
-          // TODO (04) Add property onVideoMute
+          onAudioMute={handleAudioMute}
+          onVideoMute={handleVideoMute}
           onDisconnect={handleDisconnect}
         />
       );

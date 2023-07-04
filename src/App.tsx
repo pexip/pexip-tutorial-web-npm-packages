@@ -15,30 +15,123 @@ import Pin from './components/Pin/Pin';
 
 import './App.css';
 
-// TODO (05) Define an enum with all the possible connection states
+enum ConnectionState {
+  Disconnected,
+  Connecting,
+  Connected,
+  Error
+};
 
-// TODO (01) Create constant with the Infinity Client Signals
-// TODO (02) Create constant with the Call Signals
+const infinityClientSignals = createInfinityClientSignals([]);
+const callSignals = createCallSignals([]);
 
-// TODO (03) Define the variable that will contain the Infinity Client
+let infinityClient: InfinityClient;
 
 function App() {
 
-  // TODO (06) Define all the variables for the state with the useState hook
+  const [connectionState, setConnectionState] = useState<ConnectionState>(ConnectionState.Disconnected);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+  const [error, setError] = useState('');
 
-  // TODO (07) Define the function handleStartConference
+  const handleStartConference = async (nodeDomain: string, conferenceAlias: string, displayName: string) => {
+    setConnectionState(ConnectionState.Connecting);
+    const localStream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: true
+    });
+    setLocalStream(localStream);
+    const response = await infinityClient.call({
+      callType: ClientCallType.AudioVideo,
+      node: nodeDomain,
+      conferenceAlias,
+      displayName,
+      bandwidth: 0,
+      mediaStream: localStream
+    });
+    if (response != null) {
+      if (response.status !== 200) {
+        localStream.getTracks().forEach((track) => track.stop());
+        setLocalStream(null);
+      }
+      switch (response.status) {
+        case 200:
+          setConnectionState(ConnectionState.Connected);
+          break;
+        case 403: {
+          setConnectionState(ConnectionState.Error);
+          setError('The conference is protected by PIN');
+          break;
+        }
+        case 404: {
+          setConnectionState(ConnectionState.Error);
+          setError('The conference doesn\'t exist');
+          break;
+        }
+        default: {
+          setConnectionState(ConnectionState.Error);
+          setError('Internal error');
+          break;
+        }
+      }
+    } else {
+      setConnectionState(ConnectionState.Error);
+      setError('The server isn\'t available');
+    }
+  };
 
-  // TODO (08) Define handleDisconnect
+  const handleDisconnect = () => {
+    localStream?.getTracks().forEach((track) => track.stop());
+    infinityClient.disconnect({reason: 'User initiated disconnect'});
+    setConnectionState(ConnectionState.Disconnected);
+  };
 
-  // TODO (04) Create the Infinity Client inside a useEffect hook
+  useEffect(() => {
+    infinityClient = createInfinityClient(
+      infinityClientSignals,
+      callSignals,
+    );
+  }, [error]);
 
-  // TODO (09) Bind the signals to function in a useEffect hook
+  useEffect(() => {
+    callSignals.onRemoteStream.add((stream) => setRemoteStream(stream));
+    infinityClientSignals.onError.add((error) => {
+      setConnectionState(ConnectionState.Error);
+      setError(error.error);
+    });
+    infinityClientSignals.onDisconnected.add(() => setConnectionState(ConnectionState.Disconnected));
+    const disconnectBrowserClosed = () => {
+      infinityClient.disconnect({reason: 'Browser closed'});
+    };
+    window.addEventListener('beforeunload', disconnectBrowserClosed);
+    return () => window.removeEventListener('beforeunload', disconnectBrowserClosed);
+  }, []);
 
-  // TODO (10) Create a switch statement that will select the component to display
+  let component;
+  switch (connectionState) {
+    case ConnectionState.Connecting:
+      component = <Loading />;
+      break;
+    case ConnectionState.Connected:
+      component = (
+        <Conference
+          localStream={localStream}
+          remoteStream={remoteStream}
+          onDisconnect={handleDisconnect}
+        />
+      );
+      break;
+    case ConnectionState.Error:
+      component = <Error message={error} onClose={() => setConnectionState(ConnectionState.Disconnected)}/>;
+      break;
+    default:
+      component = <Preflight onSubmit={ handleStartConference }/>;
+      break;
+  }
 
   return (
     <div className="App" data-testid='App'>
-      {/* TODO (11) Return the component that was chosen in the switch */}
+      {component}
     </div>
   );
 }

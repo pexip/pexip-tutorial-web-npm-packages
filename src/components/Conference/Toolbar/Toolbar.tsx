@@ -12,18 +12,20 @@ import "./Toolbar.css";
 
 interface ToolbarProps {
   className: string;
-  // TODO (18) Add onDisconnect
+  onDisconnect: () => void;
 }
 
 function Toolbar(props: ToolbarProps) {
 
   const className = [props.className, "Toolbar"].join(" ");
 
-  // TODO (19) Define the function handleHangUp
+  const handleHangUp = () => {
+    props.onDisconnect();
+  };
 
   return (
     <div className={className}>
-      {/* TODO (20) Render the button to hangUp*/}
+      <Button onClick={handleHangUp} icon={<CallEndIcon />} />
     </div>
   );
 }

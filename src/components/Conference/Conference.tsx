@@ -26,6 +26,7 @@ interface ConferenceProps {
   presentationStream: MediaStream | null;
   onAudioMute: (mute: boolean) => void;
   onVideoMute: (mute: boolean) => void;
+  // TODO (05) Add the property onScreenShare
   onDisconnect: () => void;
 }
 
@@ -68,6 +69,7 @@ function Conference(props: ConferenceProps) {
         className='toolbar'
         onAudioMute={props.onAudioMute}
         onVideoMute={props.onVideoMute}
+        // TODO (06) Add the prop onScreenShare
         onDisconnect={props.onDisconnect}
       />
     </div>

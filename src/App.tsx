@@ -91,6 +91,8 @@ function App() {
 
   const handleDisconnect = () => {
     localStream?.getTracks().forEach((track) => track.stop());
+    // TODO (01) Stop the presentationStream
+    // TODO (02) Set the presentationStream to null
     infinityClient.disconnect({reason: 'User initiated disconnect'});
     setConnectionState(ConnectionState.Disconnected);
   };
@@ -116,6 +118,8 @@ function App() {
       setLocalStream(stream);
     }
   };
+
+  // TODO (03) Define handleScreenShare function
 
   useEffect(() => {
     infinityClient = createInfinityClient(
@@ -164,6 +168,7 @@ function App() {
           presentationStream={presentationStream}
           onAudioMute={handleAudioMute}
           onVideoMute={handleVideoMute}
+          // TODO (04) Add the property onScreenShare
           onDisconnect={handleDisconnect}
         />
       );

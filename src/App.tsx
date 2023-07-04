@@ -19,6 +19,7 @@ enum ConnectionState {
   Disconnected,
   Connecting,
   Connected,
+  // TODO (01) Add states PinRequired and PinOptional
   Error
 };
 
@@ -34,7 +35,10 @@ function App() {
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState('');
 
+  // TODO (02) Add states for nodeDomain, conferenceAlias and displayName
+
   const handleStartConference = async (nodeDomain: string, conferenceAlias: string, displayName: string) => {
+    // TODO (03) Save in the state the parameters nodeDomain, conferenceAlias and displayName
     setConnectionState(ConnectionState.Connecting);
     const localStream = await navigator.mediaDevices.getUserMedia({
       audio: true,
@@ -59,6 +63,7 @@ function App() {
           setConnectionState(ConnectionState.Connected);
           break;
         case 403: {
+          // TODO (04) Print a warning in the console instead of displaying an error
           setConnectionState(ConnectionState.Error);
           setError('The conference is protected by PIN');
           break;
@@ -86,6 +91,8 @@ function App() {
     setConnectionState(ConnectionState.Disconnected);
   };
 
+  // TODO (08) Define function handleSetPin
+
   useEffect(() => {
     infinityClient = createInfinityClient(
       infinityClientSignals,
@@ -103,6 +110,7 @@ function App() {
     const disconnectBrowserClosed = () => {
       infinityClient.disconnect({reason: 'Browser closed'});
     };
+    // TODO (05) Bind a function to the onPinRequired signal
     window.addEventListener('beforeunload', disconnectBrowserClosed);
     return () => window.removeEventListener('beforeunload', disconnectBrowserClosed);
   }, []);
@@ -112,6 +120,8 @@ function App() {
     case ConnectionState.Connecting:
       component = <Loading />;
       break;
+    // TODO (06): Display the PIN component in case a PIN is required
+    // TODO (07): Display the PIN component in case a PIN is optional
     case ConnectionState.Connected:
       component = (
         <Conference

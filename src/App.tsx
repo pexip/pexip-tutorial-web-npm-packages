@@ -101,6 +101,10 @@ function App() {
     setConnectionState(ConnectionState.Connecting);
   };
 
+  // TODO (01) Define handleAudioMute
+
+  // TODO (02) Define handleVideoMute
+
   useEffect(() => {
     infinityClient = createInfinityClient(
       infinityClientSignals,
@@ -144,6 +148,8 @@ function App() {
         <Conference
           localStream={localStream}
           remoteStream={remoteStream}
+          // TODO (03) Add property onAudioMute
+          // TODO (04) Add property onVideoMute
           onDisconnect={handleDisconnect}
         />
       );

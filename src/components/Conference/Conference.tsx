@@ -23,6 +23,8 @@ const Video = React.memo((props: VideoProps) => {
 interface ConferenceProps {
   localStream: MediaStream | null;
   remoteStream: MediaStream | null;
+  // TODO (05) Add property onAudioMute
+  // TODO (06) Add property onVideoMute
   onDisconnect: () => void;
 }
 
@@ -31,9 +33,12 @@ function Conference(props: ConferenceProps) {
     <div className='Conference'>
       <Video className='remote-video'
          mediaStream={props.remoteStream}/>
+      {/* TODO (07) Replace the following line and check if localStream exists before render it */}
       <Video className='local-video' mediaStream={props.localStream} muted={true}/>
       <Toolbar
         className='toolbar'
+        // TODO (08) Add property onAudioMute
+        // TODO (09) Add property onVideoMute
         onDisconnect={props.onDisconnect}
       />
     </div>

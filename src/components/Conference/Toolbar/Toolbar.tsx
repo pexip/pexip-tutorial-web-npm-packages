@@ -12,6 +12,8 @@ import "./Toolbar.css";
 
 interface ToolbarProps {
   className: string;
+  // TODO (10) Add property onAudioMute
+  // TODO (11) Add property onVideoMute
   onDisconnect: () => void;
 }
 
@@ -19,12 +21,21 @@ function Toolbar(props: ToolbarProps) {
 
   const className = [props.className, "Toolbar"].join(" ");
 
+  // TODO (12) Add state for audioMuted
+  // TODO (13) Add state for videoMuted
+
+  // TODO (14) Define function handleAudioMute
+
+  // TODO (15) Define function handleVideoMute
+
   const handleHangUp = () => {
     props.onDisconnect();
   };
 
   return (
     <div className={className}>
+      {/* TODO (16) Add button to mute the audio */}
+      {/* TODO (17) Add button to mute the video */}
       <Button onClick={handleHangUp} icon={<CallEndIcon />} />
     </div>
   );

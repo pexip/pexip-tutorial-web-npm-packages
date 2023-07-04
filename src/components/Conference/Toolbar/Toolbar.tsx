@@ -14,7 +14,7 @@ interface ToolbarProps {
   className: string;
   onAudioMute: (mute: boolean) => void;
   onVideoMute: (mute: boolean) => void;
-  // TODO (07) Add the property onScreenShare
+  onScreenShare: (share: boolean, onEnded: () => void) => void;
   onDisconnect: () => void;
 }
 
@@ -24,7 +24,7 @@ function Toolbar(props: ToolbarProps) {
 
   const [audioMuted, setAudioMuted] = useState(false);
   const [videoMuted, setVideoMuted] = useState(false);
-  // TODO (08) Define the state for screenShared
+  const [screenShared, setScreenShared] = useState(false);
 
   const handleAudioMute = () => {
     props.onAudioMute(!audioMuted);
@@ -36,7 +36,16 @@ function Toolbar(props: ToolbarProps) {
     setVideoMuted(!videoMuted);
   };
 
-  // TODO (09) Define the handleScreenShare function
+  const handleScreenShare = async () => {
+    try {
+      await props.onScreenShare(!screenShared, () => {
+        setScreenShared(false);
+      });
+      setScreenShared(!screenShared);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleHangUp = () => {
     props.onDisconnect();
@@ -54,7 +63,11 @@ function Toolbar(props: ToolbarProps) {
         selected={videoMuted}
         icon={videoMuted ? <VideocamOffIcon /> : <VideocamIcon />}
       />
-      {/* TODO (10) Add the button to share the screen */}
+      <Button
+        onClick={handleScreenShare}
+        selected={screenShared}
+        icon={<ScreenShareIcon />}
+      />
       <Button onClick={handleHangUp} icon={<CallEndIcon />} />
     </div>
   );

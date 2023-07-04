@@ -19,7 +19,8 @@ enum ConnectionState {
   Disconnected,
   Connecting,
   Connected,
-  // TODO (01) Add states PinRequired and PinOptional
+  PinRequired,
+  PinOptional,
   Error
 };
 
@@ -35,10 +36,14 @@ function App() {
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState('');
 
-  // TODO (02) Add states for nodeDomain, conferenceAlias and displayName
+  const [nodeDomain, setNodeDomain] = useState<string>('');
+  const [conferenceAlias, setConferenceAlias] = useState<string>('');
+  const [displayName, setDisplayName] = useState<string>('');
 
   const handleStartConference = async (nodeDomain: string, conferenceAlias: string, displayName: string) => {
-    // TODO (03) Save in the state the parameters nodeDomain, conferenceAlias and displayName
+    setNodeDomain(nodeDomain);
+    setConferenceAlias(conferenceAlias);
+    setDisplayName(displayName);
     setConnectionState(ConnectionState.Connecting);
     const localStream = await navigator.mediaDevices.getUserMedia({
       audio: true,
@@ -63,9 +68,7 @@ function App() {
           setConnectionState(ConnectionState.Connected);
           break;
         case 403: {
-          // TODO (04) Print a warning in the console instead of displaying an error
-          setConnectionState(ConnectionState.Error);
-          setError('The conference is protected by PIN');
+          console.warn('The conference is protected by PIN');
           break;
         }
         case 404: {
@@ -91,7 +94,12 @@ function App() {
     setConnectionState(ConnectionState.Disconnected);
   };
 
-  // TODO (08) Define function handleSetPin
+  const handleSetPin = (pin: string) => {
+    const currentPin = pin !== '' ? pin : 'none';
+    infinityClient.setPin(currentPin);
+    handleStartConference(nodeDomain, conferenceAlias, displayName);
+    setConnectionState(ConnectionState.Connecting);
+  };
 
   useEffect(() => {
     infinityClient = createInfinityClient(
@@ -110,7 +118,13 @@ function App() {
     const disconnectBrowserClosed = () => {
       infinityClient.disconnect({reason: 'Browser closed'});
     };
-    // TODO (05) Bind a function to the onPinRequired signal
+    infinityClientSignals.onPinRequired.add(({hasHostPin, hasGuestPin}) => {
+      if (hasHostPin && hasGuestPin) {
+        setConnectionState(ConnectionState.PinRequired);
+      } else {
+        setConnectionState(ConnectionState.PinOptional);
+      }
+    });
     window.addEventListener('beforeunload', disconnectBrowserClosed);
     return () => window.removeEventListener('beforeunload', disconnectBrowserClosed);
   }, []);
@@ -120,9 +134,12 @@ function App() {
     case ConnectionState.Connecting:
       component = <Loading />;
       break;
-    // TODO (06): Display the PIN component in case a PIN is required
-    // TODO (07): Display the PIN component in case a PIN is optional
-    case ConnectionState.Connected:
+      case ConnectionState.PinRequired:
+        component = <Pin onSubmit={ handleSetPin } required={true}/>;
+        break;
+      case ConnectionState.PinOptional:
+        component = <Pin onSubmit={ handleSetPin } required={false}/>;
+        break;    case ConnectionState.Connected:
       component = (
         <Conference
           localStream={localStream}

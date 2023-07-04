@@ -23,7 +23,7 @@ const Video = React.memo((props: VideoProps) => {
 interface ConferenceProps {
   localStream: MediaStream | null;
   remoteStream: MediaStream | null;
-  // TODO (04) Add the property presentationSteam
+  presentationStream: MediaStream | null;
   onAudioMute: (mute: boolean) => void;
   onVideoMute: (mute: boolean) => void;
   onDisconnect: () => void;
@@ -31,25 +31,39 @@ interface ConferenceProps {
 
 function Conference(props: ConferenceProps) {
 
-  // TODO (05) Define the state presentationInMain
+  const [presentationInMain, setPresentationInMain] = useState(true);
 
-  // TODO (06) Create the function switchVideos
-  // TODO (07) Use the useCallback hook over the switchVideo function
+  const switchVideos = (event: React.MouseEvent<HTMLVideoElement>) => {
+    if (event.target instanceof HTMLVideoElement) {
+      if (event.target.className === 'presentation-video') {
+        setPresentationInMain(true);
+      } else {
+        setPresentationInMain(false);
+      }
+    }
+  };
+  const memoizedSwitchVideos = React.useCallback(switchVideos , []);
 
-  // TODO (08) Define the additional classes for the conference component
+  const additionalClasses = presentationInMain && props.presentationStream
+  ? ' presentation-in-main' : '';
 
-  // TODO (10) Use the useEffect hook to reset presentationInMain when the presentation is disabled
+  useEffect(() => {
+    if (!props.presentationStream) {
+      setPresentationInMain(true)
+    }
+  }, [props.presentationStream]);
 
   return (
-    // TODO (09) Add additionalClasses to the className
-    <div className='Conference'>
-      {/* TODO (11) Add onClick attribute to the video with memoizedSwitchVideos */}
+    <div className={'Conference' + additionalClasses}>
       <Video className='remote-video'
-         mediaStream={props.remoteStream}/>
+         mediaStream={props.remoteStream} onClick={ memoizedSwitchVideos }/>
       { props.localStream &&
         <Video className='local-video' mediaStream={props.localStream}/>
       }
-      {/* TODO (12) Add the Video HTML video for presentationStream */}
+      { props.presentationStream &&
+        <Video className='presentation-video'
+          mediaStream={props.presentationStream} onClick={ memoizedSwitchVideos }/>
+      }
       <Toolbar
         className='toolbar'
         onAudioMute={props.onAudioMute}

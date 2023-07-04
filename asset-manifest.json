@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/pexip-tutorial-web-npm-packages/static/css/main.e8055963.css",
+    "main.js": "/pexip-tutorial-web-npm-packages/static/js/main.a28ccece.js",
+    "static/js/787.10b8c724.chunk.js": "/pexip-tutorial-web-npm-packages/static/js/787.10b8c724.chunk.js",
+    "static/media/Inter-Bold.woff?v=3.19": "/pexip-tutorial-web-npm-packages/static/media/Inter-Bold.93c1301bd9f486c573b3.woff",
+    "static/media/Inter-SemiBold.woff?v=3.19": "/pexip-tutorial-web-npm-packages/static/media/Inter-SemiBold.cca62d21c8c555c392e5.woff",
+    "static/media/Inter-Medium.woff?v=3.19": "/pexip-tutorial-web-npm-packages/static/media/Inter-Medium.9053572c46aeb4b16caa.woff",
+    "static/media/Inter-Regular.woff?v=3.19": "/pexip-tutorial-web-npm-packages/static/media/Inter-Regular.8c206db99195777c6769.woff",
+    "static/media/Inter-Bold.woff2?v=3.19": "/pexip-tutorial-web-npm-packages/static/media/Inter-Bold.ec64ea577b0349e055ad.woff2",
+    "static/media/Inter-Medium.woff2?v=3.19": "/pexip-tutorial-web-npm-packages/static/media/Inter-Medium.293fd13dbca5a3e450ef.woff2",
+    "static/media/Inter-SemiBold.woff2?v=3.19": "/pexip-tutorial-web-npm-packages/static/media/Inter-SemiBold.b5f0f109bc88052d4000.woff2",
+    "static/media/Inter-Regular.woff2?v=3.19": "/pexip-tutorial-web-npm-packages/static/media/Inter-Regular.c8ba52b05a9ef10f4758.woff2",
+    "index.html": "/pexip-tutorial-web-npm-packages/index.html",
+    "main.e8055963.css.map": "/pexip-tutorial-web-npm-packages/static/css/main.e8055963.css.map",
+    "main.a28ccece.js.map": "/pexip-tutorial-web-npm-packages/static/js/main.a28ccece.js.map",
+    "787.10b8c724.chunk.js.map": "/pexip-tutorial-web-npm-packages/static/js/787.10b8c724.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e8055963.css",
+    "static/js/main.a28ccece.js"
+  ]
+}

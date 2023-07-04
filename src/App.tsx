@@ -34,6 +34,7 @@ function App() {
   const [connectionState, setConnectionState] = useState<ConnectionState>(ConnectionState.Disconnected);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+  // TODO (01) Define state for presentationStream
   const [error, setError] = useState('');
 
   const [nodeDomain, setNodeDomain] = useState<string>('');
@@ -125,6 +126,7 @@ function App() {
 
   useEffect(() => {
     callSignals.onRemoteStream.add((stream) => setRemoteStream(stream));
+    // TODO (02) Listen to signal onRemotePresentationStream
     infinityClientSignals.onError.add((error) => {
       setConnectionState(ConnectionState.Error);
       setError(error.error);
@@ -159,6 +161,7 @@ function App() {
         <Conference
           localStream={localStream}
           remoteStream={remoteStream}
+          // TODO (03) Add the property presentationStream
           onAudioMute={handleAudioMute}
           onVideoMute={handleVideoMute}
           onDisconnect={handleDisconnect}

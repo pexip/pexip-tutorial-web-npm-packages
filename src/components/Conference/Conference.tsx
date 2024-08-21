@@ -1,8 +1,28 @@
-// TODO (17) Import Video and Toolbar components
+import { Video } from '@pexip/components'
+import { Toolbar } from './Toolbar/Toolbar'
+
 import './Conference.css'
 
-// TODO (18) Define the Conference properties and pass them to the function
-export const Conference = (): JSX.Element => {
-  // TODO (19) Render the Video components for local and remote and the Toolbar component
-  return <div className="Conference"></div>
+interface ConferenceProps {
+  localVideoStream: MediaStream | undefined
+  remoteStream: MediaStream | undefined
+  onDisconnect: () => Promise<void>
+}
+
+export const Conference = (props: ConferenceProps): JSX.Element => {
+  return (
+    <div className="Conference">
+      <div className="VideoContainer">
+        <Video className="remote-video" srcObject={props.remoteStream} />
+
+        <Video
+          className="local-video"
+          srcObject={props.localVideoStream}
+          isMirrored={true}
+        />
+
+        <Toolbar className="toolbar" onDisconnect={props.onDisconnect} />
+      </div>
+    </div>
+  )
 }

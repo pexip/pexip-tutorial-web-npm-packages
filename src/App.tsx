@@ -119,9 +119,43 @@ export const App = (): JSX.Element => {
     await handleStartConference(nodeDomain, conferenceAlias, displayName)
   }
 
-  // TODO (01) Define handleAudioMute function
+  const handleAudioMute = async (mute: boolean): Promise<void> => {
+    if (mute) {
+      localAudioStream?.getTracks().forEach((track) => {
+        track.stop()
+      })
+      setLocalAudioStream(undefined)
+    } else {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true
+      })
+      setLocalAudioStream(stream)
+    }
+    await infinityClient.mute({ mute })
+  }
 
-  // TODO (02) Define handleVideoMute function
+  const handleVideoMute = async (mute: boolean): Promise<void> => {
+    if (mute) {
+      localVideoStream?.getTracks().forEach((track) => {
+        track.stop()
+      })
+      setLocalVideoStream(undefined)
+    } else {
+      const localVideoStream = await navigator.mediaDevices.getUserMedia({
+        video: true
+      })
+
+      setLocalVideoStream(localVideoStream)
+
+      infinityClient.setStream(
+        new MediaStream([
+          ...(localAudioStream?.getTracks() ?? []),
+          ...localVideoStream.getTracks()
+        ])
+      )
+    }
+    await infinityClient.muteVideo({ muteVideo: mute })
+  }
 
   const handleDisconnect = async (): Promise<void> => {
     localAudioStream?.getTracks().forEach((track) => {
@@ -188,8 +222,8 @@ export const App = (): JSX.Element => {
         <Conference
           localVideoStream={localVideoStream}
           remoteStream={remoteStream}
-          // TODO (03) Add onAudioMute prop
-          // TODO (04) Add onVideoMute prop
+          onAudioMute={handleAudioMute}
+          onVideoMute={handleVideoMute}
           onDisconnect={handleDisconnect}
         />
       )

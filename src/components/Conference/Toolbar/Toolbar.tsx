@@ -5,8 +5,10 @@ import './Toolbar.css'
 
 interface ToolbarProps {
   className: string
+  // TODO (39) Add settingsOpened property
   onAudioMute: (mute: boolean) => Promise<void>
   onVideoMute: (mute: boolean) => Promise<void>
+  // TODO (40) Add onOpenSettings property
   onDisconnect: () => Promise<void>
 }
 
@@ -76,6 +78,8 @@ export const Toolbar = (props: ToolbarProps): JSX.Element => {
           />
         </Button>
       </Tooltip>
+
+      {/* TODO (41) Add button to display the settings panel */}
 
       <Tooltip text="Disconnect">
         <Button

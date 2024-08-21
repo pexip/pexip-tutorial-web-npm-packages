@@ -11,6 +11,7 @@ import { Conference } from './components/Conference/Conference'
 import { Error } from './components/Error/Error'
 import { Preflight } from './components/Preflight/Preflight'
 import { Pin } from './components/Pin/Pin'
+// TODO (05) Import MediaDeviceInfoLike, Settings and LocalStorageKey
 
 import './App.css'
 
@@ -43,6 +44,10 @@ export const App = (): JSX.Element => {
   const [conferenceAlias, setConferenceAlias] = useState<string>('')
   const [displayName, setDisplayName] = useState<string>('')
 
+  // TODO (06) Add devices state
+
+  // TODO (07) Add audioInput, audioOutput and videoInput states
+
   const handleStartConference = async (
     nodeDomain: string,
     conferenceAlias: string,
@@ -53,10 +58,14 @@ export const App = (): JSX.Element => {
     setDisplayName(displayName)
     setConnectionState(ConnectionState.Connecting)
 
+    // TODO (08) Call refreshDevices to get the audioInput and videoInput devices
+
     const localAudioStream = await navigator.mediaDevices.getUserMedia({
+      // TODO (09) Constraint the audio to a specific deviceId
       audio: true
     })
     const localVideoStream = await navigator.mediaDevices.getUserMedia({
+      // TODO (10) Constraint the video to a specific deviceId
       video: true
     })
 
@@ -127,6 +136,7 @@ export const App = (): JSX.Element => {
       setLocalAudioStream(undefined)
     } else {
       const stream = await navigator.mediaDevices.getUserMedia({
+        // TODO (11) Constraint the audio to a specific deviceId
         audio: true
       })
       setLocalAudioStream(stream)
@@ -142,6 +152,7 @@ export const App = (): JSX.Element => {
       setLocalVideoStream(undefined)
     } else {
       const localVideoStream = await navigator.mediaDevices.getUserMedia({
+        // TODO (12) Constraint the video to a specific deviceId
         video: true
       })
 
@@ -157,6 +168,8 @@ export const App = (): JSX.Element => {
     await infinityClient.muteVideo({ muteVideo: mute })
   }
 
+  // TODO (13) Add handleSettingsChange function
+
   const handleDisconnect = async (): Promise<void> => {
     localAudioStream?.getTracks().forEach((track) => {
       track.stop()
@@ -167,6 +180,8 @@ export const App = (): JSX.Element => {
     await infinityClient.disconnect({ reason: 'User initiated disconnect' })
     setConnectionState(ConnectionState.Disconnected)
   }
+
+  // TODO (14) Add refreshDevices function
 
   useEffect(() => {
     infinityClient = createInfinityClient(infinityClientSignals, callSignals)
@@ -200,9 +215,13 @@ export const App = (): JSX.Element => {
         .catch(console.error)
     }
 
+    // TODO (15) Add handleDeviceChange function
+
     window.addEventListener('beforeunload', disconnectBrowserClosed)
+    // TODO (16) Add event listeners for devicechange to call handleDeviceChange
     return () => {
       window.removeEventListener('beforeunload', disconnectBrowserClosed)
+      // TODO (17) Remove event listeners for devicechange
     }
   }, [])
 
@@ -222,8 +241,11 @@ export const App = (): JSX.Element => {
         <Conference
           localVideoStream={localVideoStream}
           remoteStream={remoteStream}
+          // TODO (18) Add devices prop
+          // TODO (19) Add settings prop
           onAudioMute={handleAudioMute}
           onVideoMute={handleVideoMute}
+          // TODO (20) Add onSettingsChange prop
           onDisconnect={handleDisconnect}
         />
       )
@@ -245,3 +267,5 @@ export const App = (): JSX.Element => {
 
   return <div className="App">{component}</div>
 }
+
+// TODO (21) Add getMediaDeviceInfo function

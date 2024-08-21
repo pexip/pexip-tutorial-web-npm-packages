@@ -1,3 +1,7 @@
-// TODO (03) Define prefix for local storage keys
+const prefix = 'pexip_'
 
-// TODO (04) Define enum LocalStorageKey with AudioInput, AudioOutput and VideoInput keys
+export enum LocalStorageKey {
+  AudioInput = `${prefix}audio_input`,
+  AudioOutput = `${prefix}audio_output`,
+  VideoInput = `${prefix}video_input`
+}

@@ -1,4 +1,7 @@
-// TODO (22) Import useState, MediaDeviceInfoLike, Settings and SettingsModal
+import { useState } from 'react'
+import { type MediaDeviceInfoLike } from '@pexip/media-control'
+import { type Settings } from '../../types/Settings'
+import { SettingsModal } from './SettingsModal/SettingsModal'
 import { Video } from '@pexip/components'
 import { Toolbar } from './Toolbar/Toolbar'
 
@@ -7,16 +10,16 @@ import './Conference.css'
 interface ConferenceProps {
   localVideoStream: MediaStream | undefined
   remoteStream: MediaStream | undefined
-  // TODO (23) Add devices property
-  // TODO (24) Add settings property
+  devices: MediaDeviceInfoLike[]
+  settings: Settings
   onAudioMute: (mute: boolean) => Promise<void>
   onVideoMute: (mute: boolean) => Promise<void>
-  // TODO (25) Add onSettingsChange property
+  onSettingsChange: (settings: Settings) => Promise<void>
   onDisconnect: () => Promise<void>
 }
 
 export const Conference = (props: ConferenceProps): JSX.Element => {
-  // TODO (26) Add settingsOpened state
+  const [settingsOpened, setSettingsOpened] = useState(false)
 
   return (
     <div className="Conference">
@@ -33,14 +36,24 @@ export const Conference = (props: ConferenceProps): JSX.Element => {
 
         <Toolbar
           className="toolbar"
-          // TODO (27) Pass settingsOpened state
+          settingsOpened={settingsOpened}
           onAudioMute={props.onAudioMute}
           onVideoMute={props.onVideoMute}
-          // TODO (28) Define onOpenSettings property
+          onOpenSettings={() => {
+            setSettingsOpened(true)
+          }}
           onDisconnect={props.onDisconnect}
         />
 
-        {/* TODO (29) Render SettingsModal */}
+        <SettingsModal
+          isOpen={settingsOpened}
+          onClose={() => {
+            setSettingsOpened(false)
+          }}
+          devices={props.devices}
+          settings={props.settings}
+          onSettingsChange={props.onSettingsChange}
+        />
       </div>
     </div>
   )

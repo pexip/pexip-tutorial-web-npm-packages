@@ -11,7 +11,9 @@ import { Conference } from './components/Conference/Conference'
 import { Error } from './components/Error/Error'
 import { Preflight } from './components/Preflight/Preflight'
 import { Pin } from './components/Pin/Pin'
-// TODO (05) Import MediaDeviceInfoLike, Settings and LocalStorageKey
+import { type MediaDeviceInfoLike } from '@pexip/media-control'
+import { type Settings } from './types/Settings'
+import { LocalStorageKey } from './types/LocalStorageKey'
 
 import './App.css'
 
@@ -44,9 +46,11 @@ export const App = (): JSX.Element => {
   const [conferenceAlias, setConferenceAlias] = useState<string>('')
   const [displayName, setDisplayName] = useState<string>('')
 
-  // TODO (06) Add devices state
+  const [devices, setDevices] = useState<MediaDeviceInfoLike[]>([])
 
-  // TODO (07) Add audioInput, audioOutput and videoInput states
+  const [audioInput, setAudioInput] = useState<MediaDeviceInfoLike>()
+  const [audioOutput, setAudioOutput] = useState<MediaDeviceInfoLike>()
+  const [videoInput, setVideoInput] = useState<MediaDeviceInfoLike>()
 
   const handleStartConference = async (
     nodeDomain: string,
@@ -58,15 +62,13 @@ export const App = (): JSX.Element => {
     setDisplayName(displayName)
     setConnectionState(ConnectionState.Connecting)
 
-    // TODO (08) Call refreshDevices to get the audioInput and videoInput devices
+    const { audioInput, videoInput } = await refreshDevices()
 
     const localAudioStream = await navigator.mediaDevices.getUserMedia({
-      // TODO (09) Constraint the audio to a specific deviceId
-      audio: true
+      audio: { deviceId: audioInput?.deviceId }
     })
     const localVideoStream = await navigator.mediaDevices.getUserMedia({
-      // TODO (10) Constraint the video to a specific deviceId
-      video: true
+      video: { deviceId: videoInput?.deviceId }
     })
 
     setLocalAudioStream(localAudioStream)
@@ -136,8 +138,7 @@ export const App = (): JSX.Element => {
       setLocalAudioStream(undefined)
     } else {
       const stream = await navigator.mediaDevices.getUserMedia({
-        // TODO (11) Constraint the audio to a specific deviceId
-        audio: true
+        audio: { deviceId: audioInput?.deviceId }
       })
       setLocalAudioStream(stream)
     }
@@ -152,8 +153,7 @@ export const App = (): JSX.Element => {
       setLocalVideoStream(undefined)
     } else {
       const localVideoStream = await navigator.mediaDevices.getUserMedia({
-        // TODO (12) Constraint the video to a specific deviceId
-        video: true
+        video: { deviceId: videoInput?.deviceId }
       })
 
       setLocalVideoStream(localVideoStream)
@@ -168,7 +168,69 @@ export const App = (): JSX.Element => {
     await infinityClient.muteVideo({ muteVideo: mute })
   }
 
-  // TODO (13) Add handleSettingsChange function
+  const handleSettingsChange = async (settings: Settings): Promise<void> => {
+    let newAudioStream: MediaStream | null = null
+    let newVideoStream: MediaStream | null = null
+
+    // Get the new audio stream if the audio input has changed
+    if (settings.audioInput !== audioInput) {
+      localAudioStream?.getTracks().forEach((track) => {
+        track.stop()
+      })
+
+      setAudioInput(settings.audioInput)
+      localStorage.setItem(
+        LocalStorageKey.AudioInput,
+        JSON.stringify(settings.audioInput)
+      )
+
+      newAudioStream = await navigator.mediaDevices.getUserMedia({
+        audio: { deviceId: settings.audioInput?.deviceId }
+      })
+      setLocalAudioStream(newAudioStream)
+    }
+
+    // Get the new video stream if the video input has changed
+    if (settings.videoInput !== videoInput) {
+      localVideoStream?.getTracks().forEach((track) => {
+        track.stop()
+      })
+
+      setVideoInput(settings.videoInput)
+      localStorage.setItem(
+        LocalStorageKey.VideoInput,
+        JSON.stringify(settings.videoInput)
+      )
+
+      newVideoStream = await navigator.mediaDevices.getUserMedia({
+        video: { deviceId: settings.videoInput?.deviceId }
+      })
+      setLocalVideoStream(newVideoStream)
+    }
+
+    // Send the new audio and video stream to Pexip Infinity
+    if (newAudioStream != null || newVideoStream != null) {
+      infinityClient.setStream(
+        new MediaStream([
+          ...(newAudioStream?.getTracks() ??
+            localAudioStream?.getTracks() ??
+            []),
+          ...(newVideoStream?.getTracks() ??
+            localVideoStream?.getTracks() ??
+            [])
+        ])
+      )
+    }
+
+    // Change the speaker if the audio output has changed
+    if (settings.audioOutput !== audioOutput) {
+      setAudioOutput(settings.audioOutput)
+      localStorage.setItem(
+        LocalStorageKey.AudioOutput,
+        JSON.stringify(settings.audioOutput)
+      )
+    }
+  }
 
   const handleDisconnect = async (): Promise<void> => {
     localAudioStream?.getTracks().forEach((track) => {
@@ -181,7 +243,25 @@ export const App = (): JSX.Element => {
     setConnectionState(ConnectionState.Disconnected)
   }
 
-  // TODO (14) Add refreshDevices function
+  const refreshDevices = async (): Promise<Settings> => {
+    const devices = await navigator.mediaDevices.enumerateDevices()
+    setDevices(devices)
+
+    const audioInput = getMediaDeviceInfo(devices, 'audioinput')
+    setAudioInput(audioInput)
+
+    const audioOutput = getMediaDeviceInfo(devices, 'audiooutput')
+    setAudioOutput(audioOutput)
+
+    const videoInput = getMediaDeviceInfo(devices, 'videoinput')
+    setVideoInput(videoInput)
+
+    return {
+      audioInput,
+      audioOutput,
+      videoInput
+    }
+  }
 
   useEffect(() => {
     infinityClient = createInfinityClient(infinityClientSignals, callSignals)
@@ -215,13 +295,15 @@ export const App = (): JSX.Element => {
         .catch(console.error)
     }
 
-    // TODO (15) Add handleDeviceChange function
+    const handleDeviceChange = (): void => {
+      refreshDevices().catch(console.error)
+    }
 
     window.addEventListener('beforeunload', disconnectBrowserClosed)
-    // TODO (16) Add event listeners for devicechange to call handleDeviceChange
+    window.addEventListener('devicechange', handleDeviceChange)
     return () => {
       window.removeEventListener('beforeunload', disconnectBrowserClosed)
-      // TODO (17) Remove event listeners for devicechange
+      window.removeEventListener('devicechange', handleDeviceChange)
     }
   }, [])
 
@@ -241,11 +323,15 @@ export const App = (): JSX.Element => {
         <Conference
           localVideoStream={localVideoStream}
           remoteStream={remoteStream}
-          // TODO (18) Add devices prop
-          // TODO (19) Add settings prop
+          devices={devices}
+          settings={{
+            audioInput,
+            audioOutput,
+            videoInput
+          }}
           onAudioMute={handleAudioMute}
           onVideoMute={handleVideoMute}
-          // TODO (20) Add onSettingsChange prop
+          onSettingsChange={handleSettingsChange}
           onDisconnect={handleDisconnect}
         />
       )
@@ -268,4 +354,41 @@ export const App = (): JSX.Element => {
   return <div className="App">{component}</div>
 }
 
-// TODO (21) Add getMediaDeviceInfo function
+const getMediaDeviceInfo = (
+  devices: MediaDeviceInfoLike[],
+  kind: MediaDeviceKind
+): MediaDeviceInfoLike | undefined => {
+  let storageKey: string
+
+  switch (kind) {
+    case 'audioinput': {
+      storageKey = LocalStorageKey.AudioInput
+      break
+    }
+    case 'audiooutput': {
+      storageKey = LocalStorageKey.AudioOutput
+      break
+    }
+    case 'videoinput': {
+      storageKey = LocalStorageKey.VideoInput
+      break
+    }
+  }
+
+  const mediaDeviceStored = localStorage.getItem(storageKey)
+
+  let mediaDeviceInfo: MediaDeviceInfoLike | undefined
+
+  if (mediaDeviceStored != null) {
+    mediaDeviceInfo = JSON.parse(mediaDeviceStored) as MediaDeviceInfo
+    const found = devices.some(
+      (device) => device.deviceId === mediaDeviceInfo?.deviceId
+    )
+    if (!found) {
+      mediaDeviceInfo = devices.find((device) => device.kind === kind)
+    }
+  } else {
+    mediaDeviceInfo = devices.find((device) => device.kind === kind)
+  }
+  return mediaDeviceInfo
+}

@@ -1,0 +1,36 @@
+.Participants {
+  display: flex;
+  flex-direction: column;
+  width: 20%;
+  max-width: 22em;
+  min-width: 15em;
+}
+
+.Participants .ParticipantsBody {
+  overflow: auto;
+}
+
+.Participants .ParticipantsInner {
+  padding: calc(var(--box-small-spacing) / 2);
+}
+
+.Participants .Participant {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 4px;
+  padding: calc(var(--box-small-spacing) / 2);
+}
+
+.Participants .Participant .selected {
+  font-weight: bold;
+}
+
+.Participants .Participant:hover {
+  background: #eee;
+}
+
+.Participants .ParticipantsInner .ParticipantStatus {
+  display: flex;
+  gap: 0.5em;
+}

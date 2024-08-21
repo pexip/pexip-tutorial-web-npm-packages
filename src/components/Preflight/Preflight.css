@@ -1,0 +1,9 @@
+.preflight {
+  width: 320px;
+}
+
+@media screen and (max-width: 400px)  {
+  .preflight {
+      width: 90%;
+  }
+}

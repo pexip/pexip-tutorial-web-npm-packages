@@ -1,3 +1,7 @@
-// TODO (01) MediaDeviceInfoLike
+import { type MediaDeviceInfoLike } from '@pexip/media-control'
 
-// TODO (02) Define interface Settings with audioInput, audioOutput and videoInput properties
+export interface Settings {
+  audioInput: MediaDeviceInfoLike | undefined
+  audioOutput: MediaDeviceInfoLike | undefined
+  videoInput: MediaDeviceInfoLike | undefined
+}

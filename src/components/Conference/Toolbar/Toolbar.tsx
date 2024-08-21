@@ -1,25 +1,37 @@
-// TODO (10) Import useState from react
+import { useState } from 'react'
 import { Button, Icon, IconTypes, Tooltip } from '@pexip/components'
 
 import './Toolbar.css'
 
 interface ToolbarProps {
   className: string
-  // TODO (11) Add onAudioMute prop
-  // TODO (12) Add onVideoMute prop
+  onAudioMute: (mute: boolean) => Promise<void>
+  onVideoMute: (mute: boolean) => Promise<void>
   onDisconnect: () => Promise<void>
 }
 
 export const Toolbar = (props: ToolbarProps): JSX.Element => {
   const className = [props.className, 'Toolbar'].join(' ')
 
-  // TODO (13) Add audioMuted and videoMuted states
+  const [audioMuted, setAudioMuted] = useState(false)
+  const [videoMuted, setVideoMuted] = useState(false)
 
-  // TODO (14) Add processingAudioMuted and processingVideoMuted states
+  const [processingAudioMute, setProcessingAudioMute] = useState(false)
+  const [processingVideoMute, setProcessingVideoMute] = useState(false)
 
-  // TODO (15) Add handleAudioMute function
+  const handleAudioMute = async (): Promise<void> => {
+    setProcessingAudioMute(true)
+    await props.onAudioMute(!audioMuted)
+    setAudioMuted(!audioMuted)
+    setProcessingAudioMute(false)
+  }
 
-  // TODO (16) Add handleVideoMute function
+  const handleVideoMute = async (): Promise<void> => {
+    setProcessingVideoMute(true)
+    await props.onVideoMute(!videoMuted)
+    setVideoMuted(!videoMuted)
+    setProcessingVideoMute(false)
+  }
 
   const handleHangUp = async (): Promise<void> => {
     await props.onDisconnect()
@@ -27,8 +39,44 @@ export const Toolbar = (props: ToolbarProps): JSX.Element => {
 
   return (
     <div className={className}>
-      {/* TODO (17) Add audio mute button */}
-      {/* TODO (18) Add video mute button */}
+      <Tooltip text={`${audioMuted ? 'Unmute' : 'Mute'} audio`}>
+        <Button
+          onClick={() => {
+            handleAudioMute().catch(console.error)
+          }}
+          variant="translucent"
+          modifier="square"
+          isActive={!audioMuted}
+          colorScheme="light"
+          disabled={processingAudioMute}
+        >
+          <Icon
+            source={
+              audioMuted
+                ? IconTypes.IconMicrophoneOff
+                : IconTypes.IconMicrophoneOn
+            }
+          />
+        </Button>
+      </Tooltip>
+
+      <Tooltip text={`${videoMuted ? 'Unmute' : 'Mute'} video`}>
+        <Button
+          onClick={() => {
+            handleVideoMute().catch(console.error)
+          }}
+          variant="translucent"
+          modifier="square"
+          isActive={!videoMuted}
+          colorScheme="light"
+          disabled={processingVideoMute}
+        >
+          <Icon
+            source={videoMuted ? IconTypes.IconVideoOff : IconTypes.IconVideoOn}
+          />
+        </Button>
+      </Tooltip>
+
       <Tooltip text="Disconnect">
         <Button
           onClick={() => {

@@ -10,6 +10,7 @@ import { Loading } from './components/Loading/Loading'
 import { Conference } from './components/Conference/Conference'
 import { Error } from './components/Error/Error'
 import { Preflight } from './components/Preflight/Preflight'
+// TODO (01) Import Pin component
 
 import './App.css'
 
@@ -22,6 +23,7 @@ enum ConnectionState {
   Disconnected,
   Connecting,
   Connected,
+  // TODO (02) Add PinRequired and PinOptional states
   Error
 }
 
@@ -36,11 +38,14 @@ export const App = (): JSX.Element => {
 
   const [error, setError] = useState('')
 
+  // TODO (03) Add state for nodeDomain, conferenceAlias and displayName
+
   const handleStartConference = async (
     nodeDomain: string,
     conferenceAlias: string,
     displayName: string
   ): Promise<void> => {
+    // TODO (04) Set state for nodeDomain, conferenceAlias and displayName
     setConnectionState(ConnectionState.Connecting)
 
     const localAudioStream = await navigator.mediaDevices.getUserMedia({
@@ -82,6 +87,7 @@ export const App = (): JSX.Element => {
           setConnectionState(ConnectionState.Connected)
           break
         case 403: {
+          // TODO (05) Instead of displaying an error, only show a warning in the console
           setConnectionState(ConnectionState.Error)
           setError('The conference is protected by PIN')
           break
@@ -102,6 +108,8 @@ export const App = (): JSX.Element => {
       setError("The server isn't available")
     }
   }
+
+  // TODO (06) Add handleSetPin function
 
   const handleDisconnect = async (): Promise<void> => {
     localAudioStream?.getTracks().forEach((track) => {
@@ -132,6 +140,8 @@ export const App = (): JSX.Element => {
       setConnectionState(ConnectionState.Disconnected)
     })
 
+    // TODO (07) Subscribe to signal onPinRequired
+
     const disconnectBrowserClosed = (): void => {
       infinityClient
         .disconnect({ reason: 'Browser closed' })
@@ -146,6 +156,8 @@ export const App = (): JSX.Element => {
 
   let component
   switch (connectionState) {
+    // TODO (08) Render Pin component when connectionState is PinRequired
+    // TODO (09) Render Pin component when connectionState is PinOptional
     case ConnectionState.Connecting:
       component = <Loading />
       break

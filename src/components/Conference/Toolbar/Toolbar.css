@@ -1,0 +1,10 @@
+.Toolbar {
+  display: flex;
+  gap: 16px;
+  padding-bottom: 16px;
+}
+
+.Toolbar button[data-active=false]:hover {
+  background-color: var(--light-translucent-background) !important;
+  color: var(--light-translucent-color) !important;
+}

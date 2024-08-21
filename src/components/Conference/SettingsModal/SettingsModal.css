@@ -1,0 +1,55 @@
+.SettingsModal  .Title {
+  margin-bottom: 1em;
+}
+
+.SettingsModal .LoadingVideoPlaceholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  background-color: #0a2136;
+  box-shadow: none;
+}
+
+.SettingsModal video {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  width: 100%;
+  border-radius: 8px;
+  background-color: #0a2136;
+}
+
+.SettingsModal .DeviceSelectionContainer {
+  margin-top: 1em;
+}
+
+.SettingsModal .DeviceSelectionContainer > div{
+  display: block;
+  width: 100%;
+}
+
+.SettingsModal .EffectSelectionContainer .ButtonSet {
+  margin-top: 1em;
+  margin-bottom: 2em;
+
+}
+
+.SettingsModal .EffectSelectionContainer .ButtonSet p {
+  font-size: 12px;
+}
+
+.SettingsModal .EffectSelectionContainer .ButtonSet button {
+  width: 100%;
+}
+
+.SettingsModal .ButtonSet {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--box-small-spacing);
+}
+
+.SettingsModal .ButtonSet button {
+  flex: 1;
+  padding: 0.5em 0;
+}

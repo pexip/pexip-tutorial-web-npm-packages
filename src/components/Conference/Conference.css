@@ -1,0 +1,58 @@
+.Conference {
+  width: calc(100% - 2em);
+  max-height: 100%;
+  display: flex;
+  gap: 1em;
+  max-height: calc(100% - 2em);
+}
+
+.Conference .VideoContainer {
+  position: relative;
+  display: flex;
+  flex: 1;
+  aspect-ratio: 16 / 9;
+}
+
+.Conference.presentation-in-main .presentation-video,
+.Conference:not(.presentation-in-main) .remote-video {
+  width: 100%;
+  max-height: 100%;
+  border-radius: 8px;
+  object-fit: contain;
+  background-color: black;
+}
+
+.Conference .local-video {
+  position: absolute;
+  width: 25%;
+  top: 0;
+  right: 0;
+  border-radius: 8px;
+  margin: 16px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.Conference.presentation-in-main .remote-video,
+.Conference:not(.presentation-in-main) .presentation-video {
+  position: absolute;
+  width: 25%;
+  top: 0;
+  left: 0;
+  border-radius: 8px;
+  margin: 16px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.Conference .toolbar {
+  position: absolute;
+  bottom: 0;
+  margin: auto;
+  left: 0;
+  right: 0;
+  width: fit-content;
+}

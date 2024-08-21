@@ -10,7 +10,7 @@ import { Loading } from './components/Loading/Loading'
 import { Conference } from './components/Conference/Conference'
 import { Error } from './components/Error/Error'
 import { Preflight } from './components/Preflight/Preflight'
-// TODO (01) Import Pin component
+import { Pin } from './components/Pin/Pin'
 
 import './App.css'
 
@@ -23,7 +23,8 @@ enum ConnectionState {
   Disconnected,
   Connecting,
   Connected,
-  // TODO (02) Add PinRequired and PinOptional states
+  PinRequired,
+  PinOptional,
   Error
 }
 
@@ -38,14 +39,18 @@ export const App = (): JSX.Element => {
 
   const [error, setError] = useState('')
 
-  // TODO (03) Add state for nodeDomain, conferenceAlias and displayName
+  const [nodeDomain, setNodeDomain] = useState<string>('')
+  const [conferenceAlias, setConferenceAlias] = useState<string>('')
+  const [displayName, setDisplayName] = useState<string>('')
 
   const handleStartConference = async (
     nodeDomain: string,
     conferenceAlias: string,
     displayName: string
   ): Promise<void> => {
-    // TODO (04) Set state for nodeDomain, conferenceAlias and displayName
+    setNodeDomain(nodeDomain)
+    setConferenceAlias(conferenceAlias)
+    setDisplayName(displayName)
     setConnectionState(ConnectionState.Connecting)
 
     const localAudioStream = await navigator.mediaDevices.getUserMedia({
@@ -87,9 +92,7 @@ export const App = (): JSX.Element => {
           setConnectionState(ConnectionState.Connected)
           break
         case 403: {
-          // TODO (05) Instead of displaying an error, only show a warning in the console
-          setConnectionState(ConnectionState.Error)
-          setError('The conference is protected by PIN')
+          console.warn('The conference is protected by PIN')
           break
         }
         case 404: {
@@ -109,7 +112,12 @@ export const App = (): JSX.Element => {
     }
   }
 
-  // TODO (06) Add handleSetPin function
+  const handleSetPin = async (pin: string): Promise<void> => {
+    const currentPin = pin !== '' ? pin : 'none'
+    infinityClient.setPin(currentPin)
+    setConnectionState(ConnectionState.Connecting)
+    await handleStartConference(nodeDomain, conferenceAlias, displayName)
+  }
 
   const handleDisconnect = async (): Promise<void> => {
     localAudioStream?.getTracks().forEach((track) => {
@@ -140,7 +148,13 @@ export const App = (): JSX.Element => {
       setConnectionState(ConnectionState.Disconnected)
     })
 
-    // TODO (07) Subscribe to signal onPinRequired
+    infinityClientSignals.onPinRequired.add(({ hasHostPin, hasGuestPin }) => {
+      if (hasHostPin && hasGuestPin) {
+        setConnectionState(ConnectionState.PinRequired)
+      } else {
+        setConnectionState(ConnectionState.PinOptional)
+      }
+    })
 
     const disconnectBrowserClosed = (): void => {
       infinityClient
@@ -156,8 +170,12 @@ export const App = (): JSX.Element => {
 
   let component
   switch (connectionState) {
-    // TODO (08) Render Pin component when connectionState is PinRequired
-    // TODO (09) Render Pin component when connectionState is PinOptional
+    case ConnectionState.PinRequired:
+      component = <Pin onSubmit={handleSetPin} required={true} />
+      break
+    case ConnectionState.PinOptional:
+      component = <Pin onSubmit={handleSetPin} required={false} />
+      break
     case ConnectionState.Connecting:
       component = <Loading />
       break

@@ -119,6 +119,10 @@ export const App = (): JSX.Element => {
     await handleStartConference(nodeDomain, conferenceAlias, displayName)
   }
 
+  // TODO (01) Define handleAudioMute function
+
+  // TODO (02) Define handleVideoMute function
+
   const handleDisconnect = async (): Promise<void> => {
     localAudioStream?.getTracks().forEach((track) => {
       track.stop()
@@ -184,6 +188,8 @@ export const App = (): JSX.Element => {
         <Conference
           localVideoStream={localVideoStream}
           remoteStream={remoteStream}
+          // TODO (03) Add onAudioMute prop
+          // TODO (04) Add onVideoMute prop
           onDisconnect={handleDisconnect}
         />
       )

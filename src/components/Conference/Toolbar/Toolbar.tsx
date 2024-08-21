@@ -1,19 +1,33 @@
-// TODO (20) Import components from @pexip/components
+import { Button, Icon, IconTypes, Tooltip } from '@pexip/components'
+
 import './Toolbar.css'
 
 interface ToolbarProps {
   className: string
-  // TODO (21) Define onDisconnect property
+  onDisconnect: () => Promise<void>
 }
 
 export const Toolbar = (props: ToolbarProps): JSX.Element => {
   const className = [props.className, 'Toolbar'].join(' ')
 
-  // TODO (22) Define the handleHangUp function
+  const handleHangUp = async (): Promise<void> => {
+    await props.onDisconnect()
+  }
 
   return (
     <div className={className}>
-      {/* TODO (23) Add a new button to disconnect from the call */}
+      <Tooltip text="Disconnect">
+        <Button
+          onClick={() => {
+            handleHangUp().catch(console.error)
+          }}
+          variant="danger"
+          modifier="square"
+          colorScheme="light"
+        >
+          <Icon source={IconTypes.IconPhoneHorisontal} />
+        </Button>
+      </Tooltip>
     </div>
   )
 }

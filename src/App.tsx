@@ -1,30 +1,177 @@
-// TODO (01) Import all dependencies
+import { useEffect, useState } from 'react'
+import {
+  ClientCallType,
+  createCallSignals,
+  createInfinityClient,
+  createInfinityClientSignals,
+  type InfinityClient
+} from '@pexip/infinity'
+import { Loading } from './components/Loading/Loading'
+import { Conference } from './components/Conference/Conference'
+import { Error } from './components/Error/Error'
+import { Preflight } from './components/Preflight/Preflight'
+
 import './App.css'
 
-// TODO (02) Define infinityClientSignals
-// TODO (03) Define infinityClient
+const infinityClientSignals = createInfinityClientSignals([])
+const callSignals = createCallSignals([])
 
-// TODO (04) Define infinityClient
+let infinityClient: InfinityClient
 
-// TODO (05) Define ConnectionState
+enum ConnectionState {
+  Disconnected,
+  Connecting,
+  Connected,
+  Error
+}
 
 export const App = (): JSX.Element => {
-  // TODO (06) Define the connectionState state
+  const [connectionState, setConnectionState] = useState<ConnectionState>(
+    ConnectionState.Disconnected
+  )
 
-  // TODO (07) Define the localAudioStream state
-  // TODO (08) Define the localVideoStream state
-  // TODO (09) Define the remoteStream state
+  const [localAudioStream, setLocalAudioStream] = useState<MediaStream>()
+  const [localVideoStream, setLocalVideoStream] = useState<MediaStream>()
+  const [remoteStream, setRemoteStream] = useState<MediaStream>()
 
-  // TODO (10) Define the error state
+  const [error, setError] = useState('')
 
-  // TODO (11) Define the handleStartConference function
+  const handleStartConference = async (
+    nodeDomain: string,
+    conferenceAlias: string,
+    displayName: string
+  ): Promise<void> => {
+    setConnectionState(ConnectionState.Connecting)
 
-  // TODO (12) Define the handleDisconnect function
+    const localAudioStream = await navigator.mediaDevices.getUserMedia({
+      audio: true
+    })
+    const localVideoStream = await navigator.mediaDevices.getUserMedia({
+      video: true
+    })
 
-  // TODO (13) Define useEffect to initialize the infinityClient when the error state changes
+    setLocalAudioStream(localAudioStream)
+    setLocalVideoStream(localVideoStream)
 
-  // TODO (14) Define useEffect to initialize the events when the component is mounted
+    const response = await infinityClient.call({
+      callType: ClientCallType.AudioVideo,
+      node: nodeDomain,
+      conferenceAlias,
+      displayName,
+      bandwidth: 0,
+      mediaStream: new MediaStream([
+        ...localAudioStream.getTracks(),
+        ...localVideoStream.getTracks()
+      ])
+    })
 
-  // TODO (15) Define a component depending on the connectionState
-  return <div className="App">{/* TODO (16) Render the component */}</div>
+    if (response != null) {
+      if (response.status !== 200) {
+        localAudioStream.getTracks().forEach((track) => {
+          track.stop()
+        })
+        localVideoStream.getTracks().forEach((track) => {
+          track.stop()
+        })
+        setLocalAudioStream(undefined)
+        setLocalVideoStream(undefined)
+      }
+
+      switch (response.status) {
+        case 200:
+          setConnectionState(ConnectionState.Connected)
+          break
+        case 403: {
+          setConnectionState(ConnectionState.Error)
+          setError('The conference is protected by PIN')
+          break
+        }
+        case 404: {
+          setConnectionState(ConnectionState.Error)
+          setError("The conference doesn't exist")
+          break
+        }
+        default: {
+          setConnectionState(ConnectionState.Error)
+          setError('Internal error')
+          break
+        }
+      }
+    } else {
+      setConnectionState(ConnectionState.Error)
+      setError("The server isn't available")
+    }
+  }
+
+  const handleDisconnect = async (): Promise<void> => {
+    localAudioStream?.getTracks().forEach((track) => {
+      track.stop()
+    })
+    localVideoStream?.getTracks().forEach((track) => {
+      track.stop()
+    })
+    await infinityClient.disconnect({ reason: 'User initiated disconnect' })
+    setConnectionState(ConnectionState.Disconnected)
+  }
+
+  useEffect(() => {
+    infinityClient = createInfinityClient(infinityClientSignals, callSignals)
+  }, [error])
+
+  useEffect(() => {
+    callSignals.onRemoteStream.add((stream) => {
+      setRemoteStream(stream)
+    })
+
+    infinityClientSignals.onError.add((error) => {
+      setConnectionState(ConnectionState.Error)
+      setError(error.error)
+    })
+
+    infinityClientSignals.onDisconnected.add(() => {
+      setConnectionState(ConnectionState.Disconnected)
+    })
+
+    const disconnectBrowserClosed = (): void => {
+      infinityClient
+        .disconnect({ reason: 'Browser closed' })
+        .catch(console.error)
+    }
+
+    window.addEventListener('beforeunload', disconnectBrowserClosed)
+    return () => {
+      window.removeEventListener('beforeunload', disconnectBrowserClosed)
+    }
+  }, [])
+
+  let component
+  switch (connectionState) {
+    case ConnectionState.Connecting:
+      component = <Loading />
+      break
+    case ConnectionState.Connected:
+      component = (
+        <Conference
+          localVideoStream={localVideoStream}
+          remoteStream={remoteStream}
+          onDisconnect={handleDisconnect}
+        />
+      )
+      break
+    case ConnectionState.Error:
+      component = (
+        <Error
+          message={error}
+          onClose={() => {
+            setConnectionState(ConnectionState.Disconnected)
+          }}
+        />
+      )
+      break
+    default:
+      component = <Preflight onSubmit={handleStartConference} />
+      break
+  }
+
+  return <div className="App">{component}</div>
 }

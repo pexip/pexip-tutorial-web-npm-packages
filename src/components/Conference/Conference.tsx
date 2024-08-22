@@ -1,5 +1,4 @@
-// TODO (04) Add useEffect to the react importation
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { type MediaDeviceInfoLike } from '@pexip/media-control'
 import { type Settings } from '../../types/Settings'
 import { SettingsModal } from './SettingsModal/SettingsModal'
@@ -11,7 +10,7 @@ import './Conference.css'
 interface ConferenceProps {
   localVideoStream: MediaStream | undefined
   remoteStream: MediaStream | undefined
-  // TODO (05) Add presentationStream to the props
+  presentationStream: MediaStream | undefined
   devices: MediaDeviceInfoLike[]
   settings: Settings
   onAudioMute: (mute: boolean) => Promise<void>
@@ -23,22 +22,36 @@ interface ConferenceProps {
 export const Conference = (props: ConferenceProps): JSX.Element => {
   const [settingsOpened, setSettingsOpened] = useState(false)
 
-  // TODO (06) Add presentationInMain state
+  const [presentationInMain, setPresentationInMain] = useState(true)
 
-  // TODO (07) Add switchVideos function
+  const switchVideos = (event: React.MouseEvent<HTMLVideoElement>): void => {
+    if (event.target instanceof HTMLVideoElement) {
+      if (event.target.classList.contains('presentation-video')) {
+        setPresentationInMain(true)
+      } else {
+        setPresentationInMain(false)
+      }
+    }
+  }
 
-  // TODO (08) Use useEffect when props.presentationStream changes
+  const additionalClasses =
+    presentationInMain && props.presentationStream != null
+      ? ' presentation-in-main'
+      : ''
 
-  // TODO (09) Add additionalClasses constant
+  useEffect(() => {
+    if (props.presentationStream == null) {
+      setPresentationInMain(true)
+    }
+  }, [props.presentationStream])
 
   return (
-    // TODO (10) Add additionalClasses to the className
-    <div className="Conference">
+    <div className={'Conference' + additionalClasses}>
       <div className="VideoContainer">
         <Video
           className="remote-video"
           srcObject={props.remoteStream}
-          // TODO (11) Add onClick prop to call switchVideos
+          onClick={switchVideos}
         />
 
         {props.localVideoStream != null && (
@@ -49,7 +62,13 @@ export const Conference = (props: ConferenceProps): JSX.Element => {
           />
         )}
 
-        {/* TODO (12) Add Video component to display the presentationStream */}
+        {props.presentationStream != null && (
+          <Video
+            className="presentation-video"
+            srcObject={props.presentationStream}
+            onClick={switchVideos}
+          />
+        )}
 
         <Toolbar
           className="toolbar"

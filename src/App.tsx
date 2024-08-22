@@ -62,7 +62,7 @@ export const App = (): JSX.Element => {
     (localStorage.getItem(LocalStorageKey.Effect) as Effect) ?? Effect.None
   )
 
-  // TODO (01) Add presentationStream state
+  const [presentationStream, setPresentationStream] = useState<MediaStream>()
 
   const handleStartConference = async (
     nodeDomain: string,
@@ -324,7 +324,9 @@ export const App = (): JSX.Element => {
   }, [error])
 
   useEffect(() => {
-    // TODO (02) Subscribe to onRemotePresentationStream signal
+    callSignals.onRemotePresentationStream.add((stream) => {
+      setPresentationStream(stream)
+    })
 
     callSignals.onRemoteStream.add((stream) => {
       setRemoteStream(stream)
@@ -381,7 +383,7 @@ export const App = (): JSX.Element => {
         <Conference
           localVideoStream={processedStream}
           remoteStream={remoteStream}
-          // TODO (03) Add presentationStream property
+          presentationStream={presentationStream}
           devices={devices}
           settings={{
             audioInput,

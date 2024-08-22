@@ -14,6 +14,7 @@ import { Pin } from './components/Pin/Pin'
 import { type MediaDeviceInfoLike } from '@pexip/media-control'
 import { type Settings } from './types/Settings'
 import { LocalStorageKey } from './types/LocalStorageKey'
+// TODO (10) Import Effect, VideoProcessor and getVideoProcessor
 
 import './App.css'
 
@@ -21,6 +22,8 @@ const infinityClientSignals = createInfinityClientSignals([])
 const callSignals = createCallSignals([])
 
 let infinityClient: InfinityClient
+
+// TODO (11) Add videoProcessor variable
 
 enum ConnectionState {
   Disconnected,
@@ -52,6 +55,8 @@ export const App = (): JSX.Element => {
   const [audioOutput, setAudioOutput] = useState<MediaDeviceInfoLike>()
   const [videoInput, setVideoInput] = useState<MediaDeviceInfoLike>()
 
+  // TODO (12) Add processedStream and effect states
+
   const handleStartConference = async (
     nodeDomain: string,
     conferenceAlias: string,
@@ -74,6 +79,9 @@ export const App = (): JSX.Element => {
     setLocalAudioStream(localAudioStream)
     setLocalVideoStream(localVideoStream)
 
+    // TODO (13) Get the processedStream
+    // TODO (14) Set the processedStream state
+
     const response = await infinityClient.call({
       callType: ClientCallType.AudioVideo,
       node: nodeDomain,
@@ -82,6 +90,7 @@ export const App = (): JSX.Element => {
       bandwidth: 0,
       mediaStream: new MediaStream([
         ...localAudioStream.getTracks(),
+        // TODO (15) Use the processedStream instead of localVideoStream
         ...localVideoStream.getTracks()
       ])
     })
@@ -96,6 +105,7 @@ export const App = (): JSX.Element => {
         })
         setLocalAudioStream(undefined)
         setLocalVideoStream(undefined)
+        // TODO (16) Set the processedStream to undefined
       }
 
       switch (response.status) {
@@ -151,6 +161,7 @@ export const App = (): JSX.Element => {
         track.stop()
       })
       setLocalVideoStream(undefined)
+      // TODO (17) Set the processedStream to undefined
     } else {
       const localVideoStream = await navigator.mediaDevices.getUserMedia({
         video: { deviceId: videoInput?.deviceId }
@@ -158,9 +169,13 @@ export const App = (): JSX.Element => {
 
       setLocalVideoStream(localVideoStream)
 
+      // TODO (18) Get the processedStream
+      // TODO (19) Set the processedStream state
+
       infinityClient.setStream(
         new MediaStream([
           ...(localAudioStream?.getTracks() ?? []),
+          // TODO (20) Use the processedStream instead of localVideoStream
           ...localVideoStream.getTracks()
         ])
       )
@@ -171,6 +186,7 @@ export const App = (): JSX.Element => {
   const handleSettingsChange = async (settings: Settings): Promise<void> => {
     let newAudioStream: MediaStream | null = null
     let newVideoStream: MediaStream | null = null
+    // TODO (21) Define newProcessedStream variable
 
     // Get the new audio stream if the audio input has changed
     if (settings.audioInput !== audioInput) {
@@ -206,15 +222,25 @@ export const App = (): JSX.Element => {
         video: { deviceId: settings.videoInput?.deviceId }
       })
       setLocalVideoStream(newVideoStream)
+
+      // TODO (22) Get the new processed stream
+      // TODO (23) Set the new processed stream state
     }
 
+    // TODO (24) Check if the effect has changed and in that case do the following:
+    // - Change the current effect state
+    // - Save the effect in localStorage
+    // - If the videoInput has not changed and we have a localVideoStream, get the new processed stream
+
     // Send the new audio and video stream to Pexip Infinity
+    // TODO (25) Compare with newProcessedStream instead of newVideoStream
     if (newAudioStream != null || newVideoStream != null) {
       infinityClient.setStream(
         new MediaStream([
           ...(newAudioStream?.getTracks() ??
             localAudioStream?.getTracks() ??
             []),
+          // TODO (26) Use the new processed stream instead of localVideoStream
           ...(newVideoStream?.getTracks() ??
             localVideoStream?.getTracks() ??
             [])
@@ -260,8 +286,11 @@ export const App = (): JSX.Element => {
       audioInput,
       audioOutput,
       videoInput
+      // TODO (27) Add effect to the return object
     }
   }
+
+  // TODO (28) Define getProcessedStream function
 
   useEffect(() => {
     infinityClient = createInfinityClient(infinityClientSignals, callSignals)
@@ -321,6 +350,7 @@ export const App = (): JSX.Element => {
     case ConnectionState.Connected:
       component = (
         <Conference
+          // TODO (29) Pass the processedStream instead of the localVideoStream
           localVideoStream={localVideoStream}
           remoteStream={remoteStream}
           devices={devices}
@@ -328,6 +358,7 @@ export const App = (): JSX.Element => {
             audioInput,
             audioOutput,
             videoInput
+            // TODO (30) Add effect to the settings
           }}
           onAudioMute={handleAudioMute}
           onVideoMute={handleVideoMute}

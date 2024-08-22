@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
-// TODO (31) Import new components from @pexip/components
-import { Button, Modal, Video } from '@pexip/components'
+import { Box, Button, Icon, IconTypes, Modal, Video } from '@pexip/components'
 import { type MediaDeviceInfoLike } from '@pexip/media-control'
 import { type Settings } from '../../../types/Settings'
 import { DevicesSelection } from '@pexip/media-components'
-// TODO (32) Import Effect, VideoProcessor, getVideoProcessor and Loading
+import { Effect } from '../../../types/Effect'
+import { type VideoProcessor } from '@pexip/media-processor'
+import { getVideoProcessor } from '../../../utils/video-processor'
+import { Loading } from '../../Loading/Loading'
 
 import './SettingsModal.css'
 
@@ -16,7 +18,7 @@ interface SettingsModalProps {
   onSettingsChange: (settings: Settings) => Promise<void>
 }
 
-// TODO (33) Add the videoProcessor variable
+let videoProcessor: VideoProcessor
 
 export const SettingsModal = (props: SettingsModalProps): JSX.Element => {
   const [localStream, setLocalStream] = useState<MediaStream>()
@@ -25,7 +27,9 @@ export const SettingsModal = (props: SettingsModalProps): JSX.Element => {
   const [audioOutput, setAudioOutput] = useState<MediaDeviceInfoLike>()
   const [videoInput, setVideoInput] = useState<MediaDeviceInfoLike>()
 
-  // TODO (34) Add the processedStream, loadedVideo and effect states
+  const [processedStream, setProcessedStream] = useState<MediaStream>()
+  const [loadedVideo, setLoadedVideo] = useState(false)
+  const [effect, setEffect] = useState<Effect>(Effect.None)
 
   const handleVideoInputChange = (device: MediaDeviceInfoLike): void => {
     if (device.deviceId !== videoInput?.deviceId) {
@@ -46,21 +50,42 @@ export const SettingsModal = (props: SettingsModalProps): JSX.Element => {
     }
   }
 
-  // TODO (35) Add the handleEffectChange function
+  const handleEffectChange = (effect: Effect): void => {
+    setEffect(effect)
+    if (localStream != null) {
+      setLoadedVideo(false)
+      getProcessedStream(localStream, effect)
+        .then((stream) => {
+          setProcessedStream(stream)
+        })
+        .catch(console.error)
+    }
+  }
 
   const handleSave = (): void => {
     props
       .onSettingsChange({
         audioInput,
         audioOutput,
-        videoInput
-        // TODO (36) Add the effect property
+        videoInput,
+        effect
       })
       .catch(console.error)
     props.onClose()
   }
 
-  // TODO (37) Add getProcessedStream function
+  const getProcessedStream = async (
+    localVideoStream: MediaStream,
+    effect: Effect
+  ): Promise<MediaStream> => {
+    if (videoProcessor != null) {
+      videoProcessor.close()
+      videoProcessor.destroy().catch(console.error)
+    }
+    videoProcessor = await getVideoProcessor(effect)
+    const processedStream = await videoProcessor.process(localVideoStream)
+    return processedStream
+  }
 
   useEffect(() => {
     const bootstrap = async (): Promise<void> => {
@@ -74,10 +99,13 @@ export const SettingsModal = (props: SettingsModalProps): JSX.Element => {
         })
         setLocalStream(localStream)
 
-        // TODO (38) Set the effect from the settings
+        setEffect(props.settings.effect)
 
-        // TODO (39) Get the processedStream
-        // TODO (40) Set the processedStream
+        const processedStream = await getProcessedStream(
+          localStream,
+          props.settings.effect
+        )
+        setProcessedStream(processedStream)
       } else {
         localStream?.getTracks().forEach((track) => {
           track.stop()
@@ -97,15 +125,21 @@ export const SettingsModal = (props: SettingsModalProps): JSX.Element => {
     >
       <h3 className="Title">Settings</h3>
 
-      {/* TODO (41) Add Loading component to display when the video is loading */}
-
-      {/* TODO (42) Only display the video when the processedStream is defined */}
-      <Video
-        srcObject={localStream}
-        isMirrored={true}
-        // TODO (43) Add onLoadedData and change loadedVideo state to true when triggered
-        // TODO (44) Add style property to hide the video when it is not loaded
-      />
+      {!loadedVideo && (
+        <Box className="LoadingVideoPlaceholder">
+          <Loading />
+        </Box>
+      )}
+      {processedStream != null && (
+        <Video
+          srcObject={processedStream}
+          isMirrored={true}
+          onLoadedData={() => {
+            setLoadedVideo(true)
+          }}
+          style={{ display: loadedVideo ? 'block' : 'none' }}
+        />
+      )}
 
       <div className="DeviceSelectionContainer">
         <h4>Select devices</h4>
@@ -132,7 +166,53 @@ export const SettingsModal = (props: SettingsModalProps): JSX.Element => {
         />
       </div>
 
-      {/* TODO (45) Render container with buttons to change the effect */}
+      <div className="EffectSelectionContainer">
+        <h4>Select effect</h4>
+
+        <div className="ButtonSet">
+          <Button
+            variant="bordered"
+            size="large"
+            isActive={effect === Effect.None}
+            onClick={() => {
+              handleEffectChange(Effect.None)
+            }}
+          >
+            <div className="ButtonInner">
+              <Icon source={IconTypes.IconBlock} />
+              <p>None</p>
+            </div>
+          </Button>
+
+          <Button
+            variant="bordered"
+            size="large"
+            isActive={effect === Effect.Blur}
+            onClick={() => {
+              handleEffectChange(Effect.Blur)
+            }}
+          >
+            <div className="ButtonInner">
+              <Icon source={IconTypes.IconBackgroundBlur} />
+              <p>Blur</p>
+            </div>
+          </Button>
+
+          <Button
+            variant="bordered"
+            size="large"
+            isActive={effect === Effect.Overlay}
+            onClick={() => {
+              handleEffectChange(Effect.Overlay)
+            }}
+          >
+            <div className="ButtonInner">
+              <Icon source={IconTypes.IconMeetingRoom} />
+              <p>Background</p>
+            </div>
+          </Button>
+        </div>
+      </div>
 
       <div className="ButtonSet">
         <Button variant="secondary" onClick={props.onClose}>

@@ -62,6 +62,8 @@ export const App = (): JSX.Element => {
     (localStorage.getItem(LocalStorageKey.Effect) as Effect) ?? Effect.None
   )
 
+  // TODO (01) Add presentationStream state
+
   const handleStartConference = async (
     nodeDomain: string,
     conferenceAlias: string,
@@ -322,6 +324,8 @@ export const App = (): JSX.Element => {
   }, [error])
 
   useEffect(() => {
+    // TODO (02) Subscribe to onRemotePresentationStream signal
+
     callSignals.onRemoteStream.add((stream) => {
       setRemoteStream(stream)
     })
@@ -377,6 +381,7 @@ export const App = (): JSX.Element => {
         <Conference
           localVideoStream={processedStream}
           remoteStream={remoteStream}
+          // TODO (03) Add presentationStream property
           devices={devices}
           settings={{
             audioInput,

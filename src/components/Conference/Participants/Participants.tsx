@@ -1,13 +1,47 @@
-// TODO (13) Import the necessary components from the @pexip/components library
-import { Box } from '@pexip/components'
-// TODO (14) Import the Participant type from the @pexip/infinity library
+import { Box, BoxHeader, Icon, IconTypes, Tooltip } from '@pexip/components'
+import { type Participant } from '@pexip/infinity'
 
 import './Participants.css'
 
-export const Participants = (): JSX.Element => {
+interface ParticipantsProps {
+  participants: Participant[]
+  me: Participant | undefined
+}
+
+export const Participants = (props: ParticipantsProps): JSX.Element => {
   return (
     <Box className="Participants">
-      {/* TODO (15) Add several elements to display the participant displayName and the state (isMuted and isCameraMuted) */}
+      <BoxHeader>Participants</BoxHeader>
+      <div className="ParticipantsBody">
+        <div className="ParticipantsInner">
+          {props.participants.map((participant) => (
+            <div className="Participant" key={participant.uuid}>
+              <span
+                className={
+                  participant.uuid === props.me?.uuid ? 'selected' : ''
+                }
+              >
+                {participant.displayName}
+                {participant.uuid === props.me?.uuid && ' (You)'}
+              </span>
+
+              <span className="ParticipantStatus">
+                {participant.isMuted && (
+                  <Tooltip text="Microphone Muted">
+                    <Icon source={IconTypes.IconMicrophoneOff} size="compact" />
+                  </Tooltip>
+                )}
+
+                {participant.isCameraMuted && (
+                  <Tooltip text="Camera Muted">
+                    <Icon source={IconTypes.IconVideoOff} size="compact" />
+                  </Tooltip>
+                )}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
     </Box>
   )
 }

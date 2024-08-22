@@ -1,3 +1,4 @@
+// TODO (04) Add useEffect to the react importation
 import { useState } from 'react'
 import { type MediaDeviceInfoLike } from '@pexip/media-control'
 import { type Settings } from '../../types/Settings'
@@ -10,6 +11,7 @@ import './Conference.css'
 interface ConferenceProps {
   localVideoStream: MediaStream | undefined
   remoteStream: MediaStream | undefined
+  // TODO (05) Add presentationStream to the props
   devices: MediaDeviceInfoLike[]
   settings: Settings
   onAudioMute: (mute: boolean) => Promise<void>
@@ -21,10 +23,23 @@ interface ConferenceProps {
 export const Conference = (props: ConferenceProps): JSX.Element => {
   const [settingsOpened, setSettingsOpened] = useState(false)
 
+  // TODO (06) Add presentationInMain state
+
+  // TODO (07) Add switchVideos function
+
+  // TODO (08) Use useEffect when props.presentationStream changes
+
+  // TODO (09) Add additionalClasses constant
+
   return (
+    // TODO (10) Add additionalClasses to the className
     <div className="Conference">
       <div className="VideoContainer">
-        <Video className="remote-video" srcObject={props.remoteStream} />
+        <Video
+          className="remote-video"
+          srcObject={props.remoteStream}
+          // TODO (11) Add onClick prop to call switchVideos
+        />
 
         {props.localVideoStream != null && (
           <Video
@@ -33,6 +48,8 @@ export const Conference = (props: ConferenceProps): JSX.Element => {
             isMirrored={true}
           />
         )}
+
+        {/* TODO (12) Add Video component to display the presentationStream */}
 
         <Toolbar
           className="toolbar"

@@ -6,8 +6,10 @@ import './Toolbar.css'
 interface ToolbarProps {
   className: string
   settingsOpened: boolean
+  // TODO (16) Add screenShared property
   onAudioMute: (mute: boolean) => Promise<void>
   onVideoMute: (mute: boolean) => Promise<void>
+  // TODO (17) Add onScreenShare property
   onOpenSettings: () => void
   onDisconnect: () => Promise<void>
 }
@@ -34,6 +36,8 @@ export const Toolbar = (props: ToolbarProps): JSX.Element => {
     setVideoMuted(!videoMuted)
     setProcessingVideoMute(false)
   }
+
+  // TODO (18) Add handleScreenShare function
 
   const handleHangUp = async (): Promise<void> => {
     await props.onDisconnect()
@@ -78,6 +82,8 @@ export const Toolbar = (props: ToolbarProps): JSX.Element => {
           />
         </Button>
       </Tooltip>
+
+      {/* TODO (19) Add screen share button */}
 
       <Tooltip text={'Settings'}>
         <Button

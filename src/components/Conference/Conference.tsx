@@ -11,10 +11,12 @@ interface ConferenceProps {
   localVideoStream: MediaStream | undefined
   remoteStream: MediaStream | undefined
   presentationStream: MediaStream | undefined
+  // TODO (12) Add screenShared property
   devices: MediaDeviceInfoLike[]
   settings: Settings
   onAudioMute: (mute: boolean) => Promise<void>
   onVideoMute: (mute: boolean) => Promise<void>
+  // TODO (13) Add onScreenShare property
   onSettingsChange: (settings: Settings) => Promise<void>
   onDisconnect: () => Promise<void>
 }
@@ -73,8 +75,10 @@ export const Conference = (props: ConferenceProps): JSX.Element => {
         <Toolbar
           className="toolbar"
           settingsOpened={settingsOpened}
+          // TODO (14) Define screenShared property
           onAudioMute={props.onAudioMute}
           onVideoMute={props.onVideoMute}
+          // TODO (15) Define onScreenShare property
           onOpenSettings={() => {
             setSettingsOpened(true)
           }}

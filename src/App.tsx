@@ -62,7 +62,10 @@ export const App = (): JSX.Element => {
     (localStorage.getItem(LocalStorageKey.Effect) as Effect) ?? Effect.None
   )
 
+  // TODO (01) Add screenShared state
   const [presentationStream, setPresentationStream] = useState<MediaStream>()
+
+  // TODO (02) Add presentationStreamRef to store the presentationStream
 
   const handleStartConference = async (
     nodeDomain: string,
@@ -188,6 +191,8 @@ export const App = (): JSX.Element => {
     await infinityClient.muteVideo({ muteVideo: mute })
   }
 
+  // TODO (03) Add handleScreenShare function
+
   const handleSettingsChange = async (settings: Settings): Promise<void> => {
     let newAudioStream: MediaStream | null = null
     let newVideoStream: MediaStream | null = null
@@ -275,6 +280,9 @@ export const App = (): JSX.Element => {
   }
 
   const handleDisconnect = async (): Promise<void> => {
+    // TODO (04) Stop presentationStream tracks
+    // TODO (05) Set presentationStream to undefined
+
     localAudioStream?.getTracks().forEach((track) => {
       track.stop()
     })
@@ -323,10 +331,16 @@ export const App = (): JSX.Element => {
     infinityClient = createInfinityClient(infinityClientSignals, callSignals)
   }, [error])
 
+  // TODO (06) Add useEffect to save the presentationStream to presentationStreamRef
+
   useEffect(() => {
     callSignals.onRemotePresentationStream.add((stream) => {
+      // TODO (07) Stop presentationStreamRef tracks from the previous stream
+      // TODO (08) Set screenShared to false in case the user is sharing is own screen
       setPresentationStream(stream)
     })
+
+    // TODO (09) Subscribe to the signal onPresentationConnectionChange to detect when the other user stops sharing the screen
 
     callSignals.onRemoteStream.add((stream) => {
       setRemoteStream(stream)
@@ -384,6 +398,7 @@ export const App = (): JSX.Element => {
           localVideoStream={processedStream}
           remoteStream={remoteStream}
           presentationStream={presentationStream}
+          // TODO (10) Add screenShared property
           devices={devices}
           settings={{
             audioInput,
@@ -393,6 +408,7 @@ export const App = (): JSX.Element => {
           }}
           onAudioMute={handleAudioMute}
           onVideoMute={handleVideoMute}
+          // TODO (11) Add onScreenShare property
           onSettingsChange={handleSettingsChange}
           onDisconnect={handleDisconnect}
         />

@@ -4,6 +4,7 @@ import { type Settings } from '../../types/Settings'
 import { SettingsModal } from './SettingsModal/SettingsModal'
 import { Video } from '@pexip/components'
 import { Toolbar } from './Toolbar/Toolbar'
+// TODO (09) Import Participant and Participants
 
 import './Conference.css'
 
@@ -14,6 +15,8 @@ interface ConferenceProps {
   screenShared: boolean
   devices: MediaDeviceInfoLike[]
   settings: Settings
+  // TODO (10) Add participants property
+  // TODO (11) Add me property
   onAudioMute: (mute: boolean) => Promise<void>
   onVideoMute: (mute: boolean) => Promise<void>
   onScreenShare: () => Promise<void>
@@ -49,6 +52,8 @@ export const Conference = (props: ConferenceProps): JSX.Element => {
 
   return (
     <div className={'Conference' + additionalClasses}>
+      {/* TODO (12) Render Participants component */}
+
       <div className="VideoContainer">
         <Video
           className="remote-video"

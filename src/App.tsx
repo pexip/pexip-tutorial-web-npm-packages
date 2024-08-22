@@ -5,6 +5,7 @@ import {
   createInfinityClient,
   createInfinityClientSignals,
   type InfinityClient
+  // TODO (01) Import Participant
 } from '@pexip/infinity'
 import { Loading } from './components/Loading/Loading'
 import { Conference } from './components/Conference/Conference'
@@ -66,6 +67,9 @@ export const App = (): JSX.Element => {
   const [presentationStream, setPresentationStream] = useState<MediaStream>()
 
   const presentationStreamRef = useRef<MediaStream>()
+
+  // TODO (02) Add participants state
+  // TODO (03) Add me state
 
   const handleStartConference = async (
     nodeDomain: string,
@@ -393,6 +397,10 @@ export const App = (): JSX.Element => {
       }
     })
 
+    // TODO (04) Subscribe to onParticipants signal
+
+    // TODO (05) Subscribe to onMe signal
+
     const disconnectBrowserClosed = (): void => {
       infinityClient
         .disconnect({ reason: 'Browser closed' })
@@ -436,6 +444,8 @@ export const App = (): JSX.Element => {
             videoInput,
             effect
           }}
+          // TODO (06) Add participants property
+          // TODO (07) Add me property
           onAudioMute={handleAudioMute}
           onVideoMute={handleVideoMute}
           onScreenShare={handleScreenShare}

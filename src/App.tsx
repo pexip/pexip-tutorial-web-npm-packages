@@ -4,8 +4,8 @@ import {
   createCallSignals,
   createInfinityClient,
   createInfinityClientSignals,
-  type InfinityClient
-  // TODO (01) Import Participant
+  type InfinityClient,
+  type Participant
 } from '@pexip/infinity'
 import { Loading } from './components/Loading/Loading'
 import { Conference } from './components/Conference/Conference'
@@ -68,8 +68,8 @@ export const App = (): JSX.Element => {
 
   const presentationStreamRef = useRef<MediaStream>()
 
-  // TODO (02) Add participants state
-  // TODO (03) Add me state
+  const [participants, setParticipants] = useState<Participant[]>([])
+  const [me, setMe] = useState<Participant>()
 
   const handleStartConference = async (
     nodeDomain: string,
@@ -397,9 +397,17 @@ export const App = (): JSX.Element => {
       }
     })
 
-    // TODO (04) Subscribe to onParticipants signal
+    infinityClientSignals.onParticipants.add((event) => {
+      if (event.id === 'main') {
+        setParticipants(event.participants)
+      }
+    })
 
-    // TODO (05) Subscribe to onMe signal
+    infinityClientSignals.onMe.add((event) => {
+      if (event.id === 'main') {
+        setMe(event.participant)
+      }
+    })
 
     const disconnectBrowserClosed = (): void => {
       infinityClient
@@ -444,8 +452,8 @@ export const App = (): JSX.Element => {
             videoInput,
             effect
           }}
-          // TODO (06) Add participants property
-          // TODO (07) Add me property
+          participants={participants}
+          me={me}
           onAudioMute={handleAudioMute}
           onVideoMute={handleVideoMute}
           onScreenShare={handleScreenShare}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   ClientCallType,
   createCallSignals,
@@ -62,10 +62,10 @@ export const App = (): JSX.Element => {
     (localStorage.getItem(LocalStorageKey.Effect) as Effect) ?? Effect.None
   )
 
-  // TODO (01) Add screenShared state
+  const [screenShared, setScreenShared] = useState(false)
   const [presentationStream, setPresentationStream] = useState<MediaStream>()
 
-  // TODO (02) Add presentationStreamRef to store the presentationStream
+  const presentationStreamRef = useRef<MediaStream>()
 
   const handleStartConference = async (
     nodeDomain: string,
@@ -191,7 +191,25 @@ export const App = (): JSX.Element => {
     await infinityClient.muteVideo({ muteVideo: mute })
   }
 
-  // TODO (03) Add handleScreenShare function
+  const handleScreenShare = async (): Promise<void> => {
+    if (screenShared) {
+      presentationStream?.getTracks().forEach((track) => {
+        track.stop()
+      })
+      setPresentationStream(undefined)
+      infinityClient.stopPresenting()
+    } else {
+      const stream = await navigator.mediaDevices.getDisplayMedia()
+      stream.getVideoTracks()[0].onended = () => {
+        setScreenShared(false)
+        setPresentationStream(undefined)
+        infinityClient.stopPresenting()
+      }
+      infinityClient.present(stream)
+      setPresentationStream(stream)
+    }
+    setScreenShared(!screenShared)
+  }
 
   const handleSettingsChange = async (settings: Settings): Promise<void> => {
     let newAudioStream: MediaStream | null = null
@@ -280,8 +298,10 @@ export const App = (): JSX.Element => {
   }
 
   const handleDisconnect = async (): Promise<void> => {
-    // TODO (04) Stop presentationStream tracks
-    // TODO (05) Set presentationStream to undefined
+    presentationStream?.getTracks().forEach((track) => {
+      track.stop()
+    })
+    setPresentationStream(undefined)
 
     localAudioStream?.getTracks().forEach((track) => {
       track.stop()
@@ -334,13 +354,23 @@ export const App = (): JSX.Element => {
   // TODO (06) Add useEffect to save the presentationStream to presentationStreamRef
 
   useEffect(() => {
+    presentationStreamRef.current = presentationStream
+  }, [presentationStream])
+
+  useEffect(() => {
     callSignals.onRemotePresentationStream.add((stream) => {
-      // TODO (07) Stop presentationStreamRef tracks from the previous stream
-      // TODO (08) Set screenShared to false in case the user is sharing is own screen
+      presentationStreamRef.current?.getTracks().forEach((track) => {
+        track.stop()
+      })
+      setScreenShared(false)
       setPresentationStream(stream)
     })
 
-    // TODO (09) Subscribe to the signal onPresentationConnectionChange to detect when the other user stops sharing the screen
+    callSignals.onPresentationConnectionChange.add((event) => {
+      if (event.recv === 'disconnected' && event.send !== 'connected') {
+        setPresentationStream(undefined)
+      }
+    })
 
     callSignals.onRemoteStream.add((stream) => {
       setRemoteStream(stream)
@@ -398,7 +428,7 @@ export const App = (): JSX.Element => {
           localVideoStream={processedStream}
           remoteStream={remoteStream}
           presentationStream={presentationStream}
-          // TODO (10) Add screenShared property
+          screenShared={screenShared}
           devices={devices}
           settings={{
             audioInput,
@@ -408,7 +438,7 @@ export const App = (): JSX.Element => {
           }}
           onAudioMute={handleAudioMute}
           onVideoMute={handleVideoMute}
-          // TODO (11) Add onScreenShare property
+          onScreenShare={handleScreenShare}
           onSettingsChange={handleSettingsChange}
           onDisconnect={handleDisconnect}
         />
